@@ -4,7 +4,7 @@ frontend:
     preBuild:
       commands:
         - echo "Installing dependencies..."
-        - npm ci --prefer-offline --no-audit
+        - npm install --prefer-offline --no-audit
         - echo "Running type check..."
         - npm run type-check
         - echo "Running tests..."
