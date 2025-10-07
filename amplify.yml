@@ -3,11 +3,17 @@ frontend:
   phases:
     preBuild:
       commands:
-        - npm ci
-        - npm run test -- --run --passWithNoTests
+        - echo "Installing dependencies..."
+        - npm ci --prefer-offline --no-audit
+        - echo "Running type check..."
+        - npm run type-check
+        - echo "Running tests..."
+        - npm run test -- --passWithNoTests --silent --watchAll=false
     build:
       commands:
+        - echo "Building Next.js application..."
         - npm run build
+        - echo "Build completed successfully!"
   artifacts:
     baseDirectory: .next
     files:
@@ -16,9 +22,35 @@ frontend:
     paths:
       - node_modules/**/*
       - .next/cache/**/*
-backend:
-  phases:
-    build:
-      commands:
-        - '# Execute Amplify CLI with the helper script'
-        - amplifyPush --simple
+      - ~/.npm/**/*
+  customHeaders:
+    - pattern: '**/*'
+      headers:
+        - key: 'X-Frame-Options'
+          value: 'DENY'
+        - key: 'X-Content-Type-Options'
+          value: 'nosniff'
+        - key: 'Referrer-Policy'
+          value: 'strict-origin-when-cross-origin'
+        - key: 'Permissions-Policy'
+          value: 'camera=(), microphone=(), geolocation=()'
+    - pattern: '**/*.js'
+      headers:
+        - key: 'Cache-Control'
+          value: 'public, max-age=31536000, immutable'
+    - pattern: '**/*.css'
+      headers:
+        - key: 'Cache-Control'
+          value: 'public, max-age=31536000, immutable'
+    - pattern: '**/*.png'
+      headers:
+        - key: 'Cache-Control'
+          value: 'public, max-age=31536000, immutable'
+    - pattern: '**/*.jpg'
+      headers:
+        - key: 'Cache-Control'
+          value: 'public, max-age=31536000, immutable'
+    - pattern: '**/*.svg'
+      headers:
+        - key: 'Cache-Control'
+          value: 'public, max-age=31536000, immutable'

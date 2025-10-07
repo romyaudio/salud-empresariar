@@ -1,0 +1,12 @@
+# Redirects for Next.js App Router
+# Handle client-side routing
+
+# Auth routes
+/auth /auth 200
+/auth/* /auth 200
+
+# API routes (if any in the future)
+/api/* /api/:splat 200
+
+# Catch-all for client-side routing
+/* /index.html 200

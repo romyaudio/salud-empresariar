@@ -73,6 +73,60 @@ src/
 3. Crear modelos de datos y configuración de base de datos
 4. Desarrollar funcionalidades de registro de ingresos y gastos
 
-## Despliegue
+## Despliegue en AWS Amplify
 
-El proyecto está configurado para despliegue manual en AWS Amplify. Ver `amplify.yml` para la configuración de build.
+### Despliegue Automático desde GitHub
+
+1. **Conectar Repositorio**:
+   - Ve a [AWS Amplify Console](https://console.aws.amazon.com/amplify/)
+   - Selecciona "Host web app"
+   - Conecta tu repositorio de GitHub: `https://github.com/romyaudio/salud-empresariar.git`
+   - Selecciona la rama `master`
+
+2. **Configuración de Build**:
+   - Amplify detectará automáticamente el archivo `amplify.yml`
+   - La configuración incluye:
+     - Instalación de dependencias con `npm ci`
+     - Ejecución de tests
+     - Build de producción con `npm run build`
+     - Optimización de archivos estáticos
+
+3. **Variables de Entorno** (Opcional para AWS Cognito):
+   ```
+   NEXT_PUBLIC_AWS_REGION=us-east-1
+   NEXT_PUBLIC_USER_POOL_ID=us-east-1_XXXXXXXXX
+   NEXT_PUBLIC_USER_POOL_CLIENT_ID=xxxxxxxxxxxxxxxxxxxxxxxxxx
+   NEXT_PUBLIC_DEMO_MODE=false
+   ```
+
+4. **Dominio Personalizado** (Opcional):
+   - Configura un dominio personalizado en la consola de Amplify
+   - Amplify manejará automáticamente el certificado SSL
+
+### Características del Despliegue
+
+- ✅ **Build Automático**: Cada push a `master` despliega automáticamente
+- ✅ **HTTPS**: SSL/TLS automático con certificados gratuitos
+- ✅ **CDN Global**: CloudFront para distribución mundial
+- ✅ **Modo Demo**: Funciona sin configuración adicional de AWS
+- ✅ **Escalabilidad**: Auto-scaling basado en tráfico
+- ✅ **Monitoreo**: Métricas y logs integrados
+
+### URL de Despliegue
+
+Una vez desplegado, la aplicación estará disponible en:
+`https://master.XXXXXXXXXX.amplifyapp.com`
+
+### Configuración Local para Desarrollo
+
+```bash
+# Clonar el repositorio
+git clone https://github.com/romyaudio/salud-empresariar.git
+cd salud-empresariar
+
+# Instalar dependencias
+npm install
+
+# Ejecutar en desarrollo
+npm run dev
+```
