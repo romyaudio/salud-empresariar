@@ -14,6 +14,9 @@
     "setup:amplify": "node scripts/setup-amplify.js",
     "verify:aws": "node scripts/verify-aws-config.js",
     "test:aws": "node scripts/test-aws-connection.js",
+    "create:user": "node scripts/create-test-user.js",
+    "debug:auth": "node scripts/debug-auth.js",
+    "verify:cognito": "node scripts/verify-cognito.js",
     "analyze": "ANALYZE=true npm run build",
     "type-check": "tsc --noEmit"
   },

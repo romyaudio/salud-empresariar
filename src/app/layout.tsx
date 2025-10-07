@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next'
 import { Inter } from 'next/font/google'
 import AuthProvider from '@/components/auth/AuthProvider'
 import ConnectionStatus from '@/components/debug/ConnectionStatus'
+import AuthDebug from '@/components/debug/AuthDebug'
 import './globals.css'
 
 const inter = Inter({ subsets: ['latin'] })
@@ -33,7 +34,10 @@ export default function RootLayout({
             {children}
           </div>
           {process.env.NODE_ENV === 'development' && (
-            <ConnectionStatus showDetails={true} />
+            <>
+              <AuthDebug />
+              <ConnectionStatus showDetails={true} />
+            </>
           )}
         </AuthProvider>
       </body>

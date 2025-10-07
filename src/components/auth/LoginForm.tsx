@@ -26,16 +26,19 @@ export default function LoginForm({ onToggleMode }: LoginFormProps) {
     setError('');
 
     try {
-      // Check if we have valid Amplify configuration
-      const hasValidConfig = process.env.NEXT_PUBLIC_USER_POOL_ID && 
-                           !process.env.NEXT_PUBLIC_USER_POOL_ID.includes('XXXXXXXXX');
+      // Check if we're in demo mode
+      const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE === 'true';
 
-      if (hasValidConfig) {
+      if (!isDemoMode) {
         // Use real AWS Cognito
+        console.log('🔐 Attempting AWS Cognito sign in...');
+        
         const { isSignedIn, nextStep } = await signIn({
           username: email,
           password: password,
         });
+
+        console.log('🔐 Sign in result:', { isSignedIn, nextStep });
 
         if (isSignedIn) {
           // User is signed in successfully
@@ -53,11 +56,14 @@ export default function LoginForm({ onToggleMode }: LoginFormProps) {
         } else if (nextStep.signInStep === 'CONFIRM_SIGN_IN_WITH_NEW_PASSWORD_REQUIRED') {
           // Handle new password required
           setError('Se requiere una nueva contraseña. Esta funcionalidad se implementará próximamente.');
+        } else if (nextStep.signInStep === 'CONFIRM_SIGN_UP') {
+          setError('Por favor confirma tu email antes de iniciar sesión. Revisa tu bandeja de entrada.');
         } else {
-          setError('Error en el proceso de autenticación');
+          setError('Error en el proceso de autenticación. Paso: ' + nextStep.signInStep);
         }
       } else {
         // Demo mode - simulate authentication
+        console.log('🎭 Demo mode authentication');
         await new Promise(resolve => setTimeout(resolve, 1000));
         
         if (email === 'demo@empresa.com' || email.includes('@')) {
@@ -77,20 +83,35 @@ export default function LoginForm({ onToggleMode }: LoginFormProps) {
         }
       }
     } catch (err: any) {
-      console.error('Error signing in:', err);
+      console.error('🚨 Error signing in:', err);
+      console.error('🚨 Error details:', {
+        name: err.name,
+        message: err.message,
+        code: err.code,
+        stack: err.stack
+      });
       
       switch (err.name) {
         case 'NotAuthorizedException':
           setError('Email o contraseña incorrectos');
           break;
         case 'UserNotConfirmedException':
-          setError('Por favor confirma tu email antes de iniciar sesión');
+          setError('Por favor confirma tu email antes de iniciar sesión. Revisa tu bandeja de entrada.');
           break;
         case 'UserNotFoundException':
-          setError('Usuario no encontrado');
+          setError('Usuario no encontrado. ¿Necesitas registrarte?');
+          break;
+        case 'InvalidParameterException':
+          setError('Parámetros inválidos. Verifica el formato del email.');
+          break;
+        case 'TooManyRequestsException':
+          setError('Demasiados intentos. Espera un momento antes de intentar de nuevo.');
+          break;
+        case 'NetworkError':
+          setError('Error de conexión. Verifica tu conexión a internet.');
           break;
         default:
-          setError('Error al iniciar sesión. Inténtalo de nuevo.');
+          setError(`Error al iniciar sesión: ${err.message || 'Error desconocido'}. Revisa la consola para más detalles.`);
       }
     } finally {
       setIsLoading(false);
