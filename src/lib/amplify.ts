@@ -8,6 +8,13 @@ export const amplifyConfig = {
       userPoolClientId: process.env.NEXT_PUBLIC_USER_POOL_CLIENT_ID || 'xxxxxxxxxxxxxxxxxxxxxxxxxx',
     },
   },
+  API: {
+    GraphQL: {
+      endpoint: process.env.NEXT_PUBLIC_GRAPHQL_ENDPOINT || 'https://xxxxxxxxxxxxxxxxxxxxxxxxxx.appsync-api.us-east-1.amazonaws.com/graphql',
+      region: process.env.NEXT_PUBLIC_AWS_REGION || 'us-east-1',
+      defaultAuthMode: 'userPool' as const,
+    },
+  },
 };
 
 // Configure Amplify

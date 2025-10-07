@@ -1,7 +1,9 @@
-import { Transaction, Category, Budget, User, ApiResponse, PaginatedResponse, TransactionFilters } from '@/types';
+import { Transaction, Category, Budget, User, ApiResponse, PaginatedResponse, TransactionFilters, TransactionFormData } from '@/types';
 import { TransactionModel } from '@/lib/models/Transaction';
 import { CategoryModel } from '@/lib/models/Category';
 import { BudgetModel } from '@/lib/models/Budget';
+import { GraphQLService } from './graphqlService';
+import { isDemoMode } from '../amplify';
 
 // Local storage keys
 const STORAGE_KEYS = {
@@ -38,6 +40,11 @@ export class DataService {
   // Transaction methods
   static async getTransactions(userId: string, filters?: TransactionFilters): Promise<ApiResponse<Transaction[]>> {
     try {
+      // Use GraphQL service if not in demo mode
+      if (!isDemoMode()) {
+        return await GraphQLService.getTransactions();
+      }
+
       let transactions = this.getFromStorage<Transaction>(STORAGE_KEYS.TRANSACTIONS)
         .filter(t => t.userId === userId);
 
@@ -87,6 +94,22 @@ export class DataService {
 
   static async createTransaction(transaction: Transaction): Promise<ApiResponse<Transaction>> {
     try {
+      // Use GraphQL service if not in demo mode
+      if (!isDemoMode()) {
+        const transactionData: TransactionFormData = {
+          type: transaction.type,
+          amount: transaction.amount.toString(),
+          description: transaction.description,
+          category: transaction.category,
+          subcategory: transaction.subcategory,
+          date: transaction.date,
+          paymentMethod: transaction.paymentMethod,
+          reference: transaction.reference,
+          tags: transaction.tags,
+        };
+        return await GraphQLService.createTransaction(transactionData);
+      }
+
       const transactions = this.getFromStorage<Transaction>(STORAGE_KEYS.TRANSACTIONS);
       transactions.push(transaction);
       this.saveToStorage(STORAGE_KEYS.TRANSACTIONS, transactions);
@@ -100,6 +123,22 @@ export class DataService {
 
   static async updateTransaction(id: string, updates: Partial<Transaction>): Promise<ApiResponse<Transaction>> {
     try {
+      // Use GraphQL service if not in demo mode
+      if (!isDemoMode()) {
+        const transactionData: Partial<TransactionFormData> = {};
+        if (updates.type) transactionData.type = updates.type;
+        if (updates.amount) transactionData.amount = updates.amount.toString();
+        if (updates.description) transactionData.description = updates.description;
+        if (updates.category) transactionData.category = updates.category;
+        if (updates.subcategory) transactionData.subcategory = updates.subcategory;
+        if (updates.date) transactionData.date = updates.date;
+        if (updates.paymentMethod) transactionData.paymentMethod = updates.paymentMethod;
+        if (updates.reference) transactionData.reference = updates.reference;
+        if (updates.tags) transactionData.tags = updates.tags;
+        
+        return await GraphQLService.updateTransaction(id, transactionData);
+      }
+
       const transactions = this.getFromStorage<Transaction>(STORAGE_KEYS.TRANSACTIONS);
       const index = transactions.findIndex(t => t.id === id);
       
@@ -119,6 +158,11 @@ export class DataService {
 
   static async deleteTransaction(id: string): Promise<ApiResponse<boolean>> {
     try {
+      // Use GraphQL service if not in demo mode
+      if (!isDemoMode()) {
+        return await GraphQLService.deleteTransaction(id);
+      }
+
       const transactions = this.getFromStorage<Transaction>(STORAGE_KEYS.TRANSACTIONS);
       const filteredTransactions = transactions.filter(t => t.id !== id);
       

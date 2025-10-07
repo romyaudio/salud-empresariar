@@ -1,0 +1,90 @@
+# Budget Tracker GraphQL Schema
+
+type Transaction @model @auth(rules: [{ allow: owner }]) {
+  id: ID!
+  type: TransactionType!
+  amount: Float!
+  description: String!
+  category: String!
+  subcategory: String
+  date: AWSDate!
+  paymentMethod: PaymentMethod
+  reference: String
+  tags: [String]
+  attachments: [String]
+  owner: String @auth(rules: [{ allow: owner, operations: [read, delete] }])
+}
+
+type Category @model @auth(rules: [{ allow: owner }]) {
+  id: ID!
+  name: String!
+  type: TransactionType!
+  subcategories: [String]!
+  color: String!
+  icon: String
+  isDefault: Boolean!
+  owner: String @auth(rules: [{ allow: owner, operations: [read, delete] }])
+}
+
+type Budget @model @auth(rules: [{ allow: owner }]) {
+  id: ID!
+  name: String!
+  category: String!
+  amount: Float!
+  period: BudgetPeriod!
+  startDate: AWSDate!
+  endDate: AWSDate!
+  spent: Float!
+  isActive: Boolean!
+  owner: String @auth(rules: [{ allow: owner, operations: [read, delete] }])
+}
+
+enum TransactionType {
+  INCOME
+  EXPENSE
+}
+
+enum PaymentMethod {
+  CASH
+  CARD
+  TRANSFER
+  CHECK
+  OTHER
+}
+
+enum BudgetPeriod {
+  WEEKLY
+  MONTHLY
+  YEARLY
+}
+
+# Custom queries for dashboard data
+type Query {
+  getDashboardData(startDate: AWSDate, endDate: AWSDate): DashboardData
+    @auth(rules: [{ allow: owner }])
+}
+
+type DashboardData {
+  totalIncome: Float!
+  totalExpenses: Float!
+  balance: Float!
+  monthlyData: [MonthlyData]!
+  categoryBreakdown: [CategoryBreakdown]!
+  recentTransactions: [Transaction]!
+}
+
+type MonthlyData {
+  month: String!
+  income: Float!
+  expenses: Float!
+  balance: Float!
+  transactionCount: Int!
+}
+
+type CategoryBreakdown {
+  category: String!
+  amount: Float!
+  percentage: Float!
+  color: String!
+  transactionCount: Int!
+}

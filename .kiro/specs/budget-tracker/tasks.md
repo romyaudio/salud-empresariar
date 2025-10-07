@@ -63,7 +63,10 @@
     - Implementar campos obligatorios (monto, descripción, fecha)
     - _Requisitos: 1.1, 1.2_
   
-  - [ ] 4.2 Integrar formulario con API GraphQL
+  - [x] 4.2 Integrar formulario con API GraphQL
+
+
+
     - Conectar formulario con mutations de GraphQL
     - Implementar manejo de errores y estados de carga
     - _Requisitos: 1.2, 1.3_

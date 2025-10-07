@@ -1,0 +1,59 @@
+type Transaction @model @auth(rules: [{allow: owner, ownerField: "owner"}])
+{
+  type: TransactionType
+  amount: Float!
+  description: String!
+  category: String!
+  subcategory: String
+  date: AWSDate!
+  paymentMethod: TransactionPaymentMethod
+  reference: String
+  tags: [String]
+  attachments: [String]
+}
+
+type Category @model @auth(rules: [{allow: owner, ownerField: "owner"}])
+{
+  name: String!
+  type: CategoryType
+  subcategories: [String]!
+  color: String!
+  icon: String
+  isDefault: Boolean!
+}
+
+type Budget @model @auth(rules: [{allow: owner, ownerField: "owner"}])
+{
+  name: String!
+  category: String!
+  amount: Float!
+  period: BudgetPeriod
+  startDate: AWSDate!
+  endDate: AWSDate!
+  spent: Float!
+  isActive: Boolean!
+}
+
+enum TransactionType {
+  INCOME
+  EXPENSE
+}
+
+enum TransactionPaymentMethod {
+  CASH
+  CARD
+  TRANSFER
+  CHECK
+  OTHER
+}
+
+enum CategoryType {
+  INCOME
+  EXPENSE
+}
+
+enum BudgetPeriod {
+  WEEKLY
+  MONTHLY
+  YEARLY
+}
