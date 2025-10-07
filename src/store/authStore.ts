@@ -36,11 +36,20 @@ export const useAuthStore = create<AuthState>()(
 
       setLoading: (isLoading) => set({ isLoading }),
 
-      login: (user) => set({ 
-        user, 
-        isAuthenticated: true, 
-        isLoading: false 
-      }),
+      login: (user) => {
+        set({ 
+          user, 
+          isAuthenticated: true, 
+          isLoading: false 
+        });
+        
+        // Load sample data for demo users
+        if (typeof window !== 'undefined' && user.id.includes('demo')) {
+          import('@/lib/data/sampleData').then(({ loadSampleDataForUser }) => {
+            loadSampleDataForUser(user.id);
+          });
+        }
+      },
 
       logout: async () => {
         try {

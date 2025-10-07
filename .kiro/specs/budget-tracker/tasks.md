@@ -15,6 +15,7 @@
 - [x] 2. Implementar autenticación y configuración de usuario
 
 
+
   - [x] 2.1 Configurar AWS Amplify Auth con Cognito
 
     - Implementar configuración de autenticación con Amazon Cognito
@@ -32,13 +33,17 @@
     - Implementar tests de integración para flujos de login/logout
     - _Requisitos: 5.2_
 
-- [ ] 3. Crear modelos de datos y configuración de base de datos
-  - [ ] 3.1 Definir esquemas GraphQL y tipos TypeScript
+- [x] 3. Crear modelos de datos y configuración de base de datos
+
+
+  - [x] 3.1 Definir esquemas GraphQL y tipos TypeScript
+
     - Crear esquemas GraphQL para Transaction, Category y User
     - Implementar interfaces TypeScript correspondientes
     - _Requisitos: 1.2, 2.2, 2.4_
   
-  - [ ] 3.2 Configurar DynamoDB con Amplify
+  - [x] 3.2 Configurar DynamoDB con Amplify
+
     - Configurar tablas DynamoDB con índices GSI
     - Implementar resolvers GraphQL para operaciones CRUD
     - _Requisitos: 5.1_
