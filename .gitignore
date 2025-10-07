@@ -54,3 +54,6 @@ amplify-gradle-config.json
 amplifytools.xcconfig
 .secret-*
 **.sample
+
+# AWS Amplify sensitive files
+amplify_outputs.json
