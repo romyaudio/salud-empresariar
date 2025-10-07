@@ -36,11 +36,11 @@ export default function AppLayout({ children }: AppLayoutProps) {
       isActive: pathname === '/expenses'
     },
     {
-      id: 'export',
-      label: 'Exportar',
-      icon: '📤',
-      path: '/export',
-      isActive: pathname === '/export'
+      id: 'categories',
+      label: 'Categorías',
+      icon: '📋',
+      path: '/categories',
+      isActive: pathname === '/categories'
     }
   ];
 

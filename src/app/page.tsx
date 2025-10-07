@@ -130,6 +130,13 @@ export default function Home() {
             >
               💸 Registrar Gasto
             </Button>
+            <Button 
+              variant="secondary" 
+              className="w-full"
+              onClick={() => router.push('/categories')}
+            >
+              📋 Gestionar Categorías
+            </Button>
           </div>
         </div>
 

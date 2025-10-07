@@ -1,7 +1,9 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { signUp, confirmSignUp } from 'aws-amplify/auth';
+import { useAuthStore } from '@/store/authStore';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 
@@ -10,6 +12,8 @@ interface RegisterFormProps {
 }
 
 export default function RegisterForm({ onToggleMode }: RegisterFormProps) {
+  const router = useRouter();
+  const { login } = useAuthStore();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -112,8 +116,22 @@ export default function RegisterForm({ onToggleMode }: RegisterFormProps) {
       });
 
       if (isSignUpComplete) {
-        setSuccess('¡Email verificado! Ya puedes iniciar sesión.');
-        setTimeout(() => onToggleMode(), 2000);
+        setSuccess('¡Email verificado! Iniciando sesión automáticamente...');
+        
+        // Auto-login después del registro exitoso
+        const user = {
+          id: formData.email,
+          email: formData.email,
+          name: formData.name || formData.email.split('@')[0],
+          emailVerified: true,
+        };
+        
+        login(user);
+        
+        // Redirigir al dashboard
+        setTimeout(() => {
+          router.push('/');
+        }, 1500);
       }
     } catch (err: any) {
       console.error('Error confirming sign up:', err);

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { signIn, confirmSignIn } from 'aws-amplify/auth';
 import { useAuthStore } from '@/store/authStore';
 import Button from '@/components/ui/Button';
@@ -11,6 +12,7 @@ interface LoginFormProps {
 }
 
 export default function LoginForm({ onToggleMode }: LoginFormProps) {
+  const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -45,6 +47,9 @@ export default function LoginForm({ onToggleMode }: LoginFormProps) {
           };
           
           login(user);
+          
+          // Redirigir al dashboard
+          router.push('/');
         } else if (nextStep.signInStep === 'CONFIRM_SIGN_IN_WITH_NEW_PASSWORD_REQUIRED') {
           // Handle new password required
           setError('Se requiere una nueva contraseña. Esta funcionalidad se implementará próximamente.');
@@ -64,6 +69,9 @@ export default function LoginForm({ onToggleMode }: LoginFormProps) {
           };
           
           login(user);
+          
+          // Redirigir al dashboard
+          router.push('/');
         } else {
           setError('Email o contraseña incorrectos');
         }

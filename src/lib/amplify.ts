@@ -1,33 +1,13 @@
-import { Amplify } from 'aws-amplify';
+import { configureAmplifyFromOutputs, isUsingRealAWS, getConfigStatus } from './amplifyConfig';
 
-// AWS Amplify configuration
-export const amplifyConfig = {
-  Auth: {
-    Cognito: {
-      userPoolId: process.env.NEXT_PUBLIC_USER_POOL_ID || 'us-east-1_XXXXXXXXX',
-      userPoolClientId: process.env.NEXT_PUBLIC_USER_POOL_CLIENT_ID || 'xxxxxxxxxxxxxxxxxxxxxxxxxx',
-    },
-  },
-  API: {
-    GraphQL: {
-      endpoint: process.env.NEXT_PUBLIC_GRAPHQL_ENDPOINT || 'https://xxxxxxxxxxxxxxxxxxxxxxxxxx.appsync-api.us-east-1.amazonaws.com/graphql',
-      region: process.env.NEXT_PUBLIC_AWS_REGION || 'us-east-1',
-      defaultAuthMode: 'userPool' as const,
-    },
-  },
-};
-
-// Configure Amplify
+// Configure Amplify using the new configuration
 export function configureAmplify() {
   try {
-    // Only configure if we have valid credentials
-    if (process.env.NEXT_PUBLIC_USER_POOL_ID && 
-        process.env.NEXT_PUBLIC_USER_POOL_CLIENT_ID &&
-        !process.env.NEXT_PUBLIC_USER_POOL_ID.includes('XXXXXXXXX')) {
-      Amplify.configure(amplifyConfig);
-      console.log('Amplify configured successfully');
+    const success = configureAmplifyFromOutputs();
+    if (success) {
+      console.log('✅ Amplify configured with AWS DynamoDB');
     } else {
-      console.log('Amplify configuration skipped - using demo mode');
+      console.log('❌ Failed to configure Amplify');
     }
   } catch (error) {
     console.error('Error configuring Amplify:', error);
@@ -36,7 +16,8 @@ export function configureAmplify() {
 
 // Check if we're in demo mode
 export const isDemoMode = () => {
-  return !process.env.NEXT_PUBLIC_USER_POOL_ID || 
-         process.env.NEXT_PUBLIC_USER_POOL_ID.includes('XXXXXXXXX') ||
-         process.env.NEXT_PUBLIC_DEMO_MODE === 'true';
+  return process.env.NEXT_PUBLIC_DEMO_MODE === 'true';
 };
+
+// Export configuration utilities
+export { isUsingRealAWS, getConfigStatus };

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/authStore';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
@@ -10,6 +11,7 @@ interface DemoAuthProps {
 }
 
 export default function DemoAuth({ onToggleMode }: DemoAuthProps) {
+  const router = useRouter();
   const [email, setEmail] = useState('demo@empresa.com');
   const [password, setPassword] = useState('demo123');
   const [isLoading, setIsLoading] = useState(false);
@@ -33,6 +35,9 @@ export default function DemoAuth({ onToggleMode }: DemoAuthProps) {
 
     login(demoUser);
     setIsLoading(false);
+    
+    // Redirigir al dashboard
+    router.push('/');
   };
 
   return (

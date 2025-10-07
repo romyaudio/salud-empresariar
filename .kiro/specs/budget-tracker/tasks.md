@@ -77,12 +77,18 @@
     - _Requisitos: 1.1, 1.2, 1.4_
 
 - [ ] 5. Implementar funcionalidad de registro de gastos
-  - [ ] 5.1 Crear sistema de categorías de gastos
+  - [x] 5.1 Crear sistema de categorías de gastos
+
+
+
     - Desarrollar componente CategoryManager para gestión de categorías
     - Implementar categorías predefinidas y subcategorías personalizadas
     - _Requisitos: 2.1, 2.2_
   
-  - [ ] 5.2 Crear formulario de registro de gastos
+  - [x] 5.2 Crear formulario de registro de gastos
+
+
+
     - Desarrollar componente ExpenseForm con selector de categorías
     - Implementar validación y cálculo automático de balance
     - _Requisitos: 2.1, 2.3, 2.4_

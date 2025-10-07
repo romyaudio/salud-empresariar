@@ -1,6 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuthStore } from '@/store/authStore';
 import LoginForm from '@/components/auth/LoginForm';
 import RegisterForm from '@/components/auth/RegisterForm';
 import DemoAuth from '@/components/auth/DemoAuth';
@@ -9,6 +11,15 @@ type AuthMode = 'demo' | 'login' | 'register';
 
 export default function AuthPage() {
   const [mode, setMode] = useState<AuthMode>('demo');
+  const { isAuthenticated, isLoading } = useAuthStore();
+  const router = useRouter();
+
+  // Redirigir al dashboard si ya está autenticado
+  useEffect(() => {
+    if (!isLoading && isAuthenticated) {
+      router.push('/');
+    }
+  }, [isAuthenticated, isLoading, router]);
 
   const toggleLoginRegister = () => {
     setMode(mode === 'login' ? 'register' : 'login');
