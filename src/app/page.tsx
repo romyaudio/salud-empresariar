@@ -109,13 +109,25 @@ export default function Home() {
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Acciones Rápidas</h3>
           
           <div className="space-y-3">
-            <Button variant="primary" className="w-full">
+            <Button 
+              variant="primary" 
+              className="w-full"
+              onClick={() => router.push('/')}
+            >
               📊 Ver Dashboard
             </Button>
-            <Button variant="secondary" className="w-full">
+            <Button 
+              variant="secondary" 
+              className="w-full"
+              onClick={() => router.push('/income')}
+            >
               💰 Registrar Ingreso
             </Button>
-            <Button variant="secondary" className="w-full">
+            <Button 
+              variant="secondary" 
+              className="w-full"
+              onClick={() => router.push('/expenses')}
+            >
               💸 Registrar Gasto
             </Button>
           </div>

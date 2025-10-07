@@ -55,7 +55,10 @@
     - _Requisitos: 1.2, 2.2_
 
 - [ ] 4. Implementar funcionalidad de registro de ingresos
-  - [ ] 4.1 Crear formulario de registro de ingresos
+  - [x] 4.1 Crear formulario de registro de ingresos
+
+
+
     - Desarrollar componente IncomeForm con validación
     - Implementar campos obligatorios (monto, descripción, fecha)
     - _Requisitos: 1.1, 1.2_
