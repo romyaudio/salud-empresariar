@@ -11,13 +11,18 @@
   - Establecer estructura de carpetas y archivos base
   - _Requisitos: 7.1, 7.2, 7.3_
 
-- [ ] 2. Implementar autenticación y configuración de usuario
-  - [ ] 2.1 Configurar AWS Amplify Auth con Cognito
+
+- [x] 2. Implementar autenticación y configuración de usuario
+
+
+  - [x] 2.1 Configurar AWS Amplify Auth con Cognito
+
     - Implementar configuración de autenticación con Amazon Cognito
     - Crear componentes de login y registro
     - _Requisitos: 5.2_
   
-  - [ ] 2.2 Crear sistema de gestión de sesiones
+  - [x] 2.2 Crear sistema de gestión de sesiones
+
     - Implementar hooks para manejo de estado de autenticación
     - Crear middleware de protección de rutas
     - _Requisitos: 5.2, 5.4_
