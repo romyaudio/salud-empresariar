@@ -36,6 +36,7 @@
 - [x] 3. Crear modelos de datos y configuración de base de datos
 
 
+
   - [x] 3.1 Definir esquemas GraphQL y tipos TypeScript
 
     - Crear esquemas GraphQL para Transaction, Category y User
