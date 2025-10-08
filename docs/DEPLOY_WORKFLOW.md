@@ -29,7 +29,7 @@ Este comando ejecuta automáticamente:
 ```bash
 git add .
 git commit -m "feat: Ready for deploy"
-git push origin main
+git push origin master
 ```
 
 ### 3. Monitoreo del Deploy en Amplify Console
@@ -152,7 +152,7 @@ npm run create:outputs
 - [ ] ✅ Verificar que el build local funciona
 - [ ] ✅ Verificar que amplify_outputs.json se genera correctamente
 - [ ] ✅ Commit con mensaje descriptivo
-- [ ] ✅ Push a main branch
+- [ ] ✅ Push a master branch
 - [ ] ✅ Monitorear deploy en Amplify Console
 
 ## Notas Importantes
