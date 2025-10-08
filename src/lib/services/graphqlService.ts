@@ -1,8 +1,8 @@
 import { generateClient } from 'aws-amplify/api';
 import { getCurrentUser } from 'aws-amplify/auth';
-import { 
-  CREATE_TRANSACTION, 
-  UPDATE_TRANSACTION, 
+import {
+  CREATE_TRANSACTION,
+  UPDATE_TRANSACTION,
   DELETE_TRANSACTION,
   GET_TRANSACTIONS,
   GET_TRANSACTION,
@@ -14,6 +14,13 @@ import {
   CREATE_BUDGET,
   GET_BUDGETS
 } from '../graphql/operations';
+import {
+  CREATE_TRANSACTION_AMPLIFY,
+  LIST_TRANSACTIONS_AMPLIFY,
+  GET_TRANSACTION_AMPLIFY,
+  UPDATE_TRANSACTION_AMPLIFY,
+  DELETE_TRANSACTION_AMPLIFY
+} from '../graphql/amplify-operations';
 import { Transaction, Category, Budget, TransactionFormData, CategoryFormData, BudgetFormData, ApiResponse, DashboardData } from '@/types';
 import { isDemoMode } from '../amplify';
 
@@ -23,10 +30,6 @@ const client = generateClient();
 export class GraphQLService {
   // Helper method to get current user ID
   private static async getCurrentUserId(): Promise<string> {
-    if (isDemoMode()) {
-      return 'demo-user';
-    }
-    
     try {
       const user = await getCurrentUser();
       return user.userId;
@@ -39,72 +42,66 @@ export class GraphQLService {
   // Transaction operations
   static async createTransaction(data: TransactionFormData): Promise<ApiResponse<Transaction>> {
     try {
-      if (isDemoMode()) {
-        // Return mock response in demo mode
-        const mockTransaction: Transaction = {
-          id: `demo-${Date.now()}`,
-          type: data.type,
-          amount: parseFloat(data.amount),
-          description: data.description,
-          category: data.category,
-          subcategory: data.subcategory,
-          date: data.date,
-          userId: 'demo-user',
-          paymentMethod: data.paymentMethod as any,
-          reference: data.reference,
-          tags: data.tags,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        };
-        
-        return { success: true, data: mockTransaction };
-      }
 
-      console.log('🔍 GraphQL createTransaction - Starting...');
-      
+      console.log('🔍 GraphQL createTransaction - Starting (Gen 2)...');
+
       const userId = await this.getCurrentUserId();
       console.log('🔍 Current user ID:', userId);
-      
-      const variables = {
-        type: data.type.toUpperCase(),
+
+      // Use Gen 2 client with type safety
+      const transactionInput = {
+        type: data.type.toUpperCase() as 'INCOME' | 'EXPENSE',
         amount: parseFloat(data.amount),
         description: data.description,
         category: data.category,
-        subcategory: data.subcategory,
+        subcategory: data.subcategory || undefined,
         date: data.date,
-        paymentMethod: data.paymentMethod?.toUpperCase(),
-        reference: data.reference,
-        tags: data.tags,
+        paymentMethod: data.paymentMethod?.toUpperCase() as 'CASH' | 'CARD' | 'TRANSFER' | 'CHECK' | 'OTHER' | undefined,
+        reference: data.reference || undefined,
+        tags: data.tags || [],
+        attachments: [],
       };
 
-      console.log('🔍 GraphQL variables:', variables);
-      console.log('🔍 GraphQL query:', CREATE_TRANSACTION);
+      console.log('🔍 Transaction input (Gen 2):', transactionInput);
 
       const response = await client.graphql({
-        query: CREATE_TRANSACTION,
-        variables,
+        query: CREATE_TRANSACTION_AMPLIFY,
+        variables: { input: transactionInput },
       }) as any;
 
-      console.log('🔍 GraphQL response:', response);
+      console.log('🔍 Gen 2 response:', response);
 
       if (response.data?.createTransaction) {
-        // Convert owner to userId for compatibility
-        const transaction = {
-          ...response.data.createTransaction,
-          userId: response.data.createTransaction.owner
+        // Convert Gen 2 response to our Transaction type
+        const responseData = response.data.createTransaction;
+        const transaction: Transaction = {
+          id: responseData.id,
+          type: responseData.type.toLowerCase() as 'income' | 'expense',
+          amount: responseData.amount,
+          description: responseData.description,
+          category: responseData.category,
+          subcategory: responseData.subcategory || undefined,
+          date: responseData.date,
+          userId: responseData.owner || userId,
+          paymentMethod: responseData.paymentMethod?.toLowerCase() as any,
+          reference: responseData.reference || undefined,
+          tags: responseData.tags || [],
+          attachments: responseData.attachments || [],
+          createdAt: responseData.createdAt,
+          updatedAt: responseData.updatedAt,
         };
-        
-        console.log('✅ Transaction created successfully:', transaction);
-        
-        return { 
-          success: true, 
-          data: transaction as Transaction 
+
+        console.log('✅ Transaction created successfully (Gen 2):', transaction);
+
+        return {
+          success: true,
+          data: transaction
         };
       } else {
-        console.error('❌ No data in GraphQL response:', response);
-        return { 
-          success: false, 
-          error: 'No se recibieron datos de la transacción' 
+        console.error('❌ No data in Gen 2 response:', response);
+        return {
+          success: false,
+          error: 'No se recibieron datos de la transacción'
         };
       }
     } catch (error: any) {
@@ -113,21 +110,21 @@ export class GraphQLService {
       console.error('❌ Error message:', error.message);
       console.error('❌ Error code:', error.code);
       console.error('❌ Error stack:', error.stack);
-      
+
       if (error.errors) {
         console.error('❌ GraphQL errors:', error.errors);
       }
-      
+
       let errorMessage = 'Error al crear la transacción';
-      
+
       if (error.errors && error.errors.length > 0) {
         errorMessage = error.errors[0].message || errorMessage;
       } else if (error.message) {
         errorMessage = error.message;
       }
-      
-      return { 
-        success: false, 
+
+      return {
+        success: false,
         error: errorMessage
       };
     }
@@ -152,12 +149,12 @@ export class GraphQLService {
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
         };
-        
+
         return { success: true, data: mockTransaction };
       }
 
       const variables: any = { id };
-      
+
       if (data.type) variables.type = data.type.toUpperCase();
       if (data.amount) variables.amount = parseFloat(data.amount);
       if (data.description) variables.description = data.description;
@@ -174,21 +171,21 @@ export class GraphQLService {
       }) as any;
 
       if (response.data?.updateTransaction) {
-        return { 
-          success: true, 
-          data: response.data.updateTransaction as Transaction 
+        return {
+          success: true,
+          data: response.data.updateTransaction as Transaction
         };
       } else {
-        return { 
-          success: false, 
-          error: 'Error al actualizar la transacción' 
+        return {
+          success: false,
+          error: 'Error al actualizar la transacción'
         };
       }
     } catch (error: any) {
       console.error('Error updating transaction:', error);
-      return { 
-        success: false, 
-        error: error.message || 'Error al actualizar la transacción' 
+      return {
+        success: false,
+        error: error.message || 'Error al actualizar la transacción'
       };
     }
   }
@@ -207,78 +204,66 @@ export class GraphQLService {
       if (response.data?.deleteTransaction) {
         return { success: true, data: true };
       } else {
-        return { 
-          success: false, 
-          error: 'Error al eliminar la transacción' 
+        return {
+          success: false,
+          error: 'Error al eliminar la transacción'
         };
       }
     } catch (error: any) {
       console.error('Error deleting transaction:', error);
-      return { 
-        success: false, 
-        error: error.message || 'Error al eliminar la transacción' 
+      return {
+        success: false,
+        error: error.message || 'Error al eliminar la transacción'
       };
     }
   }
 
   static async getTransactions(): Promise<ApiResponse<Transaction[]>> {
     try {
-      if (isDemoMode()) {
-        // Return mock transactions in demo mode
-        const mockTransactions: Transaction[] = [
-          {
-            id: 'demo-1',
-            type: 'income',
-            amount: 1500000,
-            description: 'Venta de productos',
-            category: 'Ingresos',
-            date: new Date().toISOString().split('T')[0],
-            userId: 'demo-user',
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-          },
-          {
-            id: 'demo-2',
-            type: 'expense',
-            amount: 500000,
-            description: 'Compra de materiales',
-            category: 'Gastos Operativos',
-            date: new Date().toISOString().split('T')[0],
-            userId: 'demo-user',
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-          },
-        ];
-        
-        return { success: true, data: mockTransactions };
-      }
 
       const response = await client.graphql({
-        query: GET_TRANSACTIONS,
+        query: LIST_TRANSACTIONS_AMPLIFY,
       }) as any;
 
+      console.log('🔍 List transactions response (Gen 2):', response);
+
       if (response.data?.listTransactions?.items) {
-        // Convert owner to userId for compatibility
-        const transactions = response.data.listTransactions.items.map((item: any) => ({
-          ...item,
-          userId: item.owner
+        // Convert Gen 2 response to our Transaction type
+        const transactions: Transaction[] = response.data.listTransactions.items.map((item: any) => ({
+          id: item.id,
+          type: item.type.toLowerCase() as 'income' | 'expense',
+          amount: item.amount,
+          description: item.description,
+          category: item.category,
+          subcategory: item.subcategory || undefined,
+          date: item.date,
+          userId: item.owner || 'unknown',
+          paymentMethod: item.paymentMethod?.toLowerCase() as any,
+          reference: item.reference || undefined,
+          tags: item.tags || [],
+          attachments: item.attachments || [],
+          createdAt: item.createdAt,
+          updatedAt: item.updatedAt,
         }));
-        
-        return { 
-          success: true, 
-          data: transactions as Transaction[] 
+
+        console.log('✅ Transactions loaded (Gen 2):', transactions.length);
+
+        return {
+          success: true,
+          data: transactions
         };
       } else {
-        return { 
-          success: false, 
-          error: 'Error al obtener las transacciones' 
+        console.error('❌ No transactions data in Gen 2 response:', response);
+        return {
+          success: false,
+          error: 'Error al obtener las transacciones'
         };
       }
     } catch (error: any) {
       console.error('Error getting transactions:', error);
-      return { 
-        success: false, 
-        error: error.message || 'Error al obtener las transacciones' 
+      return {
+        success: false,
+        error: error.message || 'Error al obtener las transacciones'
       };
     }
   }
@@ -297,7 +282,7 @@ export class GraphQLService {
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
         };
-        
+
         return { success: true, data: mockTransaction };
       }
 
@@ -307,21 +292,21 @@ export class GraphQLService {
       }) as any;
 
       if (response.data?.getTransaction) {
-        return { 
-          success: true, 
-          data: response.data.getTransaction as Transaction 
+        return {
+          success: true,
+          data: response.data.getTransaction as Transaction
         };
       } else {
-        return { 
-          success: false, 
-          error: 'Transacción no encontrada' 
+        return {
+          success: false,
+          error: 'Transacción no encontrada'
         };
       }
     } catch (error: any) {
       console.error('Error getting transaction:', error);
-      return { 
-        success: false, 
-        error: error.message || 'Error al obtener la transacción' 
+      return {
+        success: false,
+        error: error.message || 'Error al obtener la transacción'
       };
     }
   }
@@ -342,7 +327,7 @@ export class GraphQLService {
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
         };
-        
+
         return { success: true, data: mockCategory };
       }
 
@@ -359,21 +344,21 @@ export class GraphQLService {
       }) as any;
 
       if (response.data?.createCategory) {
-        return { 
-          success: true, 
-          data: response.data.createCategory as Category 
+        return {
+          success: true,
+          data: response.data.createCategory as Category
         };
       } else {
-        return { 
-          success: false, 
-          error: 'Error al crear la categoría' 
+        return {
+          success: false,
+          error: 'Error al crear la categoría'
         };
       }
     } catch (error: any) {
       console.error('Error creating category:', error);
-      return { 
-        success: false, 
-        error: error.message || 'Error al crear la categoría' 
+      return {
+        success: false,
+        error: error.message || 'Error al crear la categoría'
       };
     }
   }
@@ -407,7 +392,7 @@ export class GraphQLService {
             updatedAt: new Date().toISOString(),
           },
         ];
-        
+
         return { success: true, data: mockCategories };
       }
 
@@ -421,22 +406,22 @@ export class GraphQLService {
           ...item,
           userId: item.owner
         }));
-        
-        return { 
-          success: true, 
-          data: categories as Category[] 
+
+        return {
+          success: true,
+          data: categories as Category[]
         };
       } else {
-        return { 
-          success: false, 
-          error: 'Error al obtener las categorías' 
+        return {
+          success: false,
+          error: 'Error al obtener las categorías'
         };
       }
     } catch (error: any) {
       console.error('Error getting categories:', error);
-      return { 
-        success: false, 
-        error: error.message || 'Error al obtener las categorías' 
+      return {
+        success: false,
+        error: error.message || 'Error al obtener las categorías'
       };
     }
   }
@@ -484,15 +469,15 @@ export class GraphQLService {
           recentTransactions: [],
           budgetStatus: [],
         };
-        
+
         return { success: true, data: mockDashboardData };
       }
 
       const userId = await this.getCurrentUserId();
-      
+
       const response = await client.graphql({
         query: GET_DASHBOARD_DATA,
-        variables: { 
+        variables: {
           userId,
           startDate,
           endDate,
@@ -500,21 +485,21 @@ export class GraphQLService {
       }) as any;
 
       if (response.data?.getDashboardData) {
-        return { 
-          success: true, 
-          data: response.data.getDashboardData as DashboardData 
+        return {
+          success: true,
+          data: response.data.getDashboardData as DashboardData
         };
       } else {
-        return { 
-          success: false, 
-          error: 'Error al obtener los datos del dashboard' 
+        return {
+          success: false,
+          error: 'Error al obtener los datos del dashboard'
         };
       }
     } catch (error: any) {
       console.error('Error getting dashboard data:', error);
-      return { 
-        success: false, 
-        error: error.message || 'Error al obtener los datos del dashboard' 
+      return {
+        success: false,
+        error: error.message || 'Error al obtener los datos del dashboard'
       };
     }
   }

@@ -40,13 +40,12 @@ export class DataService {
   // Transaction methods
   static async getTransactions(userId: string, filters?: TransactionFilters): Promise<ApiResponse<Transaction[]>> {
     try {
-      // Use GraphQL service if not in demo mode
-      if (!isDemoMode()) {
-        return await GraphQLService.getTransactions();
+      const result = await GraphQLService.getTransactions();
+      if (!result.success || !result.data) {
+        return result;
       }
 
-      let transactions = this.getFromStorage<Transaction>(STORAGE_KEYS.TRANSACTIONS)
-        .filter(t => t.userId === userId);
+      let transactions = result.data;
 
       // Apply filters
       if (filters) {
@@ -94,42 +93,18 @@ export class DataService {
 
   static async createTransaction(transaction: Transaction): Promise<ApiResponse<Transaction>> {
     try {
-      // Use GraphQL service if not in demo mode
-      if (!isDemoMode()) {
-        const transactionData: TransactionFormData = {
-          type: transaction.type,
-          amount: transaction.amount.toString(),
-          description: transaction.description,
-          category: transaction.category,
-          subcategory: transaction.subcategory,
-          date: transaction.date,
-          paymentMethod: transaction.paymentMethod,
-          reference: transaction.reference,
-          tags: transaction.tags,
-        };
-        return await GraphQLService.createTransaction(transactionData);
-      }
-
-      // Demo mode - use localStorage
-      console.log('💾 Guardando transacción en localStorage:', transaction);
-      
-      const transactions = this.getFromStorage<Transaction>(STORAGE_KEYS.TRANSACTIONS);
-      
-      // Ensure the transaction has a unique ID
-      const newTransaction = {
-        ...transaction,
-        id: transaction.id || `local-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-        createdAt: transaction.createdAt || new Date().toISOString(),
-        updatedAt: transaction.updatedAt || new Date().toISOString(),
+      const transactionData: TransactionFormData = {
+        type: transaction.type,
+        amount: transaction.amount.toString(),
+        description: transaction.description,
+        category: transaction.category,
+        subcategory: transaction.subcategory,
+        date: transaction.date,
+        paymentMethod: transaction.paymentMethod,
+        reference: transaction.reference,
+        tags: transaction.tags,
       };
-      
-      transactions.push(newTransaction);
-      this.saveToStorage(STORAGE_KEYS.TRANSACTIONS, transactions);
-      
-      console.log('✅ Transacción guardada exitosamente:', newTransaction);
-      console.log('📊 Total de transacciones:', transactions.length);
-
-      return { success: true, data: newTransaction };
+      return await GraphQLService.createTransaction(transactionData);
     } catch (error) {
       console.error('❌ Error creating transaction:', error);
       return { success: false, error: 'Error al crear la transacción' };
