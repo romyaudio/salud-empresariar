@@ -99,7 +99,10 @@
     - _Requisitos: 2.1, 2.2, 2.3, 2.4_
 
 - [ ] 6. Desarrollar dashboard y visualización de datos
-  - [ ] 6.1 Crear componente Dashboard principal
+  - [x] 6.1 Crear componente Dashboard principal
+
+
+
     - Implementar resumen de balance, ingresos y gastos totales
     - Desarrollar selector de períodos de tiempo
     - _Requisitos: 3.1, 3.2_

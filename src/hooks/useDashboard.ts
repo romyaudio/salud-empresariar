@@ -3,10 +3,13 @@ import { DashboardData, ApiResponse } from '@/types';
 import { DataService } from '@/lib/services/dataService';
 import { useAuthStore } from '@/store/authStore';
 
+type PeriodType = '7d' | '30d' | '90d' | '1y' | 'all';
+
 export function useDashboard() {
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedPeriod, setSelectedPeriod] = useState<PeriodType>('30d');
   const { user } = useAuthStore();
 
   const fetchDashboardData = async () => {
@@ -121,12 +124,14 @@ export function useDashboard() {
 
   useEffect(() => {
     fetchDashboardData();
-  }, [user]);
+  }, [user, selectedPeriod]);
 
   return {
     dashboardData,
     loading,
     error,
+    selectedPeriod,
+    setSelectedPeriod,
     getCurrentMonthData,
     getPreviousMonthData,
     getMonthlyGrowth,
