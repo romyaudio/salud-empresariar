@@ -10,6 +10,11 @@ import { OrientationHandler } from '@/components/ui/OrientationHandler';
 import { useMobileGestures } from '@/hooks/useMobileGestures';
 import { useResponsive } from '@/hooks/useResponsive';
 import { ResponsiveContainer } from '@/components/layout/ResponsiveContainer';
+import { ErrorBoundary } from '@/components/error/ErrorBoundary';
+import { ErrorNotificationContainer } from '@/components/error/ErrorNotification';
+import { useErrorHandler } from '@/hooks/useErrorHandler';
+import { NetworkStatus, NetworkIndicator } from '@/components/ui/NetworkStatus';
+import { useNetworkStatus } from '@/hooks/useNetworkStatus';
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -21,6 +26,8 @@ export function AppLayout({ children }: AppLayoutProps) {
   const pathname = usePathname();
   const [isRefreshing, setIsRefreshing] = useState(false);
   const { isMobile, isTablet, isDesktop, isLandscape } = useResponsive();
+  const { errors, removeError, handleError } = useErrorHandler();
+  const { isOnline } = useNetworkStatus();
 
   const navigationItems = [
     {
@@ -86,61 +93,79 @@ export function AppLayout({ children }: AppLayoutProps) {
   });
 
   return (
-    <OrientationHandler>
-      <div className="min-h-screen bg-gray-50">
-        {/* Header */}
-        <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-40">
-          <ResponsiveContainer padding={true}>
-            <div className={`flex items-center justify-between ${isMobile ? 'py-3' : 'py-4'}`}>
-              <div className="flex items-center space-x-3">
-                <h1 className={`font-semibold text-gray-900 ${
-                  isMobile ? 'text-lg' : isTablet ? 'text-xl' : 'text-xl'
-                }`}>
-                  {isMobile ? 'Budget' : 'Budget Tracker'}
-                </h1>
-                {isRefreshing && (
-                  <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
-                )}
-              </div>
-              {user && (
-                <div className="flex items-center space-x-2">
-                  <div className={`bg-blue-500 rounded-full flex items-center justify-center ${
-                    isMobile ? 'w-7 h-7' : 'w-8 h-8'
+    <ErrorBoundary onError={(error, errorInfo) => handleError(error, 'App Layout')}>
+      <OrientationHandler>
+        <div className="min-h-screen bg-gray-50">
+          {/* Header */}
+          <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-40">
+            <ResponsiveContainer padding={true}>
+              <div className={`flex items-center justify-between ${isMobile ? 'py-3' : 'py-4'}`}>
+                <div className="flex items-center space-x-3">
+                  <h1 className={`font-semibold text-gray-900 ${
+                    isMobile ? 'text-lg' : isTablet ? 'text-xl' : 'text-xl'
                   }`}>
-                    <span className={`text-white font-medium ${isMobile ? 'text-xs' : 'text-sm'}`}>
-                      {user.name.charAt(0).toUpperCase()}
-                    </span>
-                  </div>
-                  {!isMobile && (
-                    <span className="text-sm text-gray-600">
-                      {user.name}
-                    </span>
+                    {isMobile ? 'Budget' : 'Budget Tracker'}
+                  </h1>
+                  {isRefreshing && (
+                    <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
                   )}
                 </div>
-              )}
-            </div>
-          </ResponsiveContainer>
-        </header>
-        
-        {/* Main content with pull-to-refresh */}
-        <PullToRefresh onRefresh={handleRefresh} disabled={isRefreshing}>
-          <main className={`min-h-screen ${
-            isMobile ? 'pb-20' : isTablet ? 'pb-22' : 'pb-24'
-          } ${isMobile ? 'py-4' : 'py-6'}`}>
-            <ResponsiveContainer>
-              <ModeNotification />
-              {children}
+                <div className="flex items-center space-x-3">
+                  {/* Network indicator */}
+                  <NetworkIndicator />
+                  
+                  {user && (
+                    <div className="flex items-center space-x-2">
+                      <div className={`bg-blue-500 rounded-full flex items-center justify-center ${
+                        isMobile ? 'w-7 h-7' : 'w-8 h-8'
+                      }`}>
+                        <span className={`text-white font-medium ${isMobile ? 'text-xs' : 'text-sm'}`}>
+                          {user.name.charAt(0).toUpperCase()}
+                        </span>
+                      </div>
+                      {!isMobile && (
+                        <span className="text-sm text-gray-600">
+                          {user.name}
+                        </span>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
             </ResponsiveContainer>
-          </main>
-        </PullToRefresh>
-        
-        {/* Enhanced Mobile Navigation */}
-        <MobileNavigation 
-          navigationItems={navigationItems}
-          onNavigate={handleNavigation}
-        />
-      </div>
-    </OrientationHandler>
+          </header>
+          
+          {/* Main content with pull-to-refresh */}
+          <PullToRefresh onRefresh={handleRefresh} disabled={isRefreshing}>
+            <main className={`min-h-screen ${
+              isMobile ? 'pb-20' : isTablet ? 'pb-22' : 'pb-24'
+            } ${isMobile ? 'py-4' : 'py-6'}`}>
+              <ResponsiveContainer>
+                <ModeNotification />
+                <ErrorBoundary onError={(error, errorInfo) => handleError(error, 'Main Content')}>
+                  {children}
+                </ErrorBoundary>
+              </ResponsiveContainer>
+            </main>
+          </PullToRefresh>
+          
+          {/* Enhanced Mobile Navigation */}
+          <MobileNavigation 
+            navigationItems={navigationItems}
+            onNavigate={handleNavigation}
+          />
+          
+          {/* Network Status */}
+          <NetworkStatus />
+          
+          {/* Error Notifications */}
+          <ErrorNotificationContainer
+            errors={errors}
+            onRemoveError={removeError}
+          />
+        </div>
+      </OrientationHandler>
+    </ErrorBoundary>
   );
 }
 

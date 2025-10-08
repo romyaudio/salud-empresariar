@@ -173,6 +173,7 @@
   - [x] 8.2 Integrar funcionalidad de descarga/compartir
 
 
+
     - Implementar descarga de archivos en dispositivos móviles
     - Crear funcionalidad de compartir nativa
     - _Requisitos: 6.4_
@@ -183,12 +184,16 @@
     - _Requisitos: 6.1, 6.2, 6.3, 6.4_
 
 - [ ] 9. Implementar manejo de errores y estados de carga
-  - [ ] 9.1 Crear sistema de manejo de errores
+  - [x] 9.1 Crear sistema de manejo de errores
+
+
     - Implementar ErrorBoundary y componentes de error
     - Desarrollar sistema de notificaciones y mensajes de error
     - _Requisitos: 5.3_
   
-  - [ ] 9.2 Implementar estados de carga y offline
+  - [x] 9.2 Implementar estados de carga y offline
+
+
     - Crear componentes LoadingSpinner y estados de carga
     - Implementar funcionalidad básica offline con cache
     - _Requisitos: 5.3_
