@@ -20,7 +20,8 @@
     "setup:outputs": "node scripts/setup-amplify-outputs.js",
     "create:outputs": "node scripts/create-amplify-outputs.js",
     "analyze": "ANALYZE=true npm run build",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "pre-deploy": "node scripts/pre-deploy.js"
   },
   "dependencies": {
     "@aws-amplify/backend": "^1.16.1",
