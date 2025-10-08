@@ -1,8 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import Button from '@/components/ui/Button';
-import Input from '@/components/ui/Input';
+import { TouchOptimizedButton } from '@/components/ui/TouchOptimizedButton';
+import { TouchOptimizedInput } from '@/components/ui/TouchOptimizedInput';
+import { TouchOptimizedSelect } from '@/components/ui/TouchOptimizedSelect';
 import { CategorySelector } from '@/components/categories/CategorySelector';
 import { useTransactions } from '@/hooks/useTransactions';
 import { Transaction } from '@/types';
@@ -48,7 +49,6 @@ export function ExpenseForm({ onSuccess, onCancel }: ExpenseFormProps) {
 
   // Opciones de métodos de pago
   const paymentMethods = [
-    { value: '', label: 'Seleccionar método (opcional)' },
     { value: 'cash', label: '💵 Efectivo' },
     { value: 'card', label: '💳 Tarjeta' },
     { value: 'transfer', label: '🏦 Transferencia' },
@@ -189,49 +189,33 @@ export function ExpenseForm({ onSuccess, onCancel }: ExpenseFormProps) {
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Campo de Monto */}
-        <div>
-          <label htmlFor="amount" className="block text-sm font-medium text-gray-700 mb-1">
-            Monto *
-          </label>
-          <div className="relative">
-            <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">
-              $
-            </span>
-            <Input
-              id="amount"
-              type="number"
-              step="0.01"
-              min="0"
-              placeholder="0.00"
-              value={formData.amount}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange('amount', e.target.value)}
-              className={`pl-8 ${errors.amount ? 'border-red-500' : ''}`}
-              disabled={isSubmitting}
-            />
-          </div>
-          {errors.amount && (
-            <p className="mt-1 text-sm text-red-600">{errors.amount}</p>
-          )}
-        </div>
+        <TouchOptimizedInput
+          label="Monto *"
+          icon="💸"
+          type="number"
+          step="0.01"
+          min="0"
+          placeholder="0.00"
+          value={formData.amount}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange('amount', e.target.value)}
+          error={errors.amount}
+          disabled={isSubmitting}
+          inputMode="decimal"
+        />
 
         {/* Campo de Descripción */}
         <div>
-          <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
-            Descripción *
-          </label>
-          <Input
-            id="description"
+          <TouchOptimizedInput
+            label="Descripción *"
+            icon="📝"
             type="text"
             placeholder="Ej: Compra de materiales, Pago de servicios..."
             value={formData.description}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange('description', e.target.value)}
-            className={errors.description ? 'border-red-500' : ''}
+            error={errors.description}
             disabled={isSubmitting}
             maxLength={100}
           />
-          {errors.description && (
-            <p className="mt-1 text-sm text-red-600">{errors.description}</p>
-          )}
           <p className="mt-1 text-xs text-gray-500">
             {formData.description.length}/100 caracteres
           </p>
@@ -254,51 +238,33 @@ export function ExpenseForm({ onSuccess, onCancel }: ExpenseFormProps) {
         </div>
 
         {/* Campo de Fecha */}
-        <div>
-          <label htmlFor="date" className="block text-sm font-medium text-gray-700 mb-1">
-            Fecha *
-          </label>
-          <Input
-            id="date"
-            type="date"
-            value={formData.date}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange('date', e.target.value)}
-            className={errors.date ? 'border-red-500' : ''}
-            disabled={isSubmitting}
-            max={new Date().toISOString().split('T')[0]} // No permitir fechas futuras
-          />
-          {errors.date && (
-            <p className="mt-1 text-sm text-red-600">{errors.date}</p>
-          )}
-        </div>
+        <TouchOptimizedInput
+          label="Fecha *"
+          icon="📅"
+          type="date"
+          value={formData.date}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange('date', e.target.value)}
+          error={errors.date}
+          disabled={isSubmitting}
+          max={new Date().toISOString().split('T')[0]} // No permitir fechas futuras
+        />
 
         {/* Método de Pago (Opcional) */}
-        <div>
-          <label htmlFor="paymentMethod" className="block text-sm font-medium text-gray-700 mb-1">
-            Método de Pago
-          </label>
-          <select
-            id="paymentMethod"
-            value={formData.paymentMethod}
-            onChange={(e) => handleInputChange('paymentMethod', e.target.value)}
-            disabled={isSubmitting}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
-          >
-            {paymentMethods.map((method) => (
-              <option key={method.value} value={method.value}>
-                {method.label}
-              </option>
-            ))}
-          </select>
-        </div>
+        <TouchOptimizedSelect
+          label="Método de Pago"
+          icon="💳"
+          value={formData.paymentMethod}
+          onChange={(e) => handleInputChange('paymentMethod', e.target.value)}
+          disabled={isSubmitting}
+          options={paymentMethods}
+          placeholder="Seleccionar método (opcional)"
+        />
 
         {/* Referencia (Opcional) */}
         <div>
-          <label htmlFor="reference" className="block text-sm font-medium text-gray-700 mb-1">
-            Referencia
-          </label>
-          <Input
-            id="reference"
+          <TouchOptimizedInput
+            label="Referencia"
+            icon="🧾"
             type="text"
             placeholder="Ej: Factura #123, Recibo #456..."
             value={formData.reference}
@@ -319,32 +285,30 @@ export function ExpenseForm({ onSuccess, onCancel }: ExpenseFormProps) {
         )}
 
         {/* Botones */}
-        <div className="flex flex-col sm:flex-row gap-3 pt-4">
-          <Button
+        <div className="flex flex-col gap-3 pt-4">
+          <TouchOptimizedButton
             type="submit"
+            variant="primary"
+            size="lg"
+            icon="💸"
+            loading={isSubmitting || isLoading}
             disabled={isSubmitting || isLoading}
-            className="flex-1 bg-red-600 hover:bg-red-700 text-white"
+            className="w-full bg-red-600 hover:bg-red-700 border-red-600 hover:border-red-700"
           >
-            {isSubmitting ? (
-              <div className="flex items-center justify-center">
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                Registrando...
-              </div>
-            ) : (
-              'Registrar Gasto'
-            )}
-          </Button>
+            {isSubmitting ? 'Registrando...' : 'Registrar Gasto'}
+          </TouchOptimizedButton>
           
           {onCancel && (
-            <Button
+            <TouchOptimizedButton
               type="button"
               variant="secondary"
+              size="lg"
               onClick={onCancel}
               disabled={isSubmitting}
-              className="flex-1"
+              className="w-full"
             >
               Cancelar
-            </Button>
+            </TouchOptimizedButton>
           )}
         </div>
       </form>

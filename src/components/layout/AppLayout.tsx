@@ -8,6 +8,8 @@ import { MobileNavigation } from '@/components/navigation/MobileNavigation';
 import { PullToRefresh } from '@/components/navigation/PullToRefresh';
 import { OrientationHandler } from '@/components/ui/OrientationHandler';
 import { useMobileGestures } from '@/hooks/useMobileGestures';
+import { useResponsive } from '@/hooks/useResponsive';
+import { ResponsiveContainer } from '@/components/layout/ResponsiveContainer';
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -18,6 +20,7 @@ export function AppLayout({ children }: AppLayoutProps) {
   const router = useRouter();
   const pathname = usePathname();
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const { isMobile, isTablet, isDesktop, isLandscape } = useResponsive();
 
   const navigationItems = [
     {
@@ -87,35 +90,47 @@ export function AppLayout({ children }: AppLayoutProps) {
       <div className="min-h-screen bg-gray-50">
         {/* Header */}
         <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-40">
-          <div className="container mx-auto px-4 py-4">
-            <div className="flex items-center justify-between">
+          <ResponsiveContainer padding={true}>
+            <div className={`flex items-center justify-between ${isMobile ? 'py-3' : 'py-4'}`}>
               <div className="flex items-center space-x-3">
-                <h1 className="text-xl font-semibold text-gray-900">Budget Tracker</h1>
+                <h1 className={`font-semibold text-gray-900 ${
+                  isMobile ? 'text-lg' : isTablet ? 'text-xl' : 'text-xl'
+                }`}>
+                  {isMobile ? 'Budget' : 'Budget Tracker'}
+                </h1>
                 {isRefreshing && (
                   <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
                 )}
               </div>
               {user && (
                 <div className="flex items-center space-x-2">
-                  <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
-                    <span className="text-white text-sm font-medium">
+                  <div className={`bg-blue-500 rounded-full flex items-center justify-center ${
+                    isMobile ? 'w-7 h-7' : 'w-8 h-8'
+                  }`}>
+                    <span className={`text-white font-medium ${isMobile ? 'text-xs' : 'text-sm'}`}>
                       {user.name.charAt(0).toUpperCase()}
                     </span>
                   </div>
-                  <span className="text-sm text-gray-600 hidden sm:block">
-                    {user.name}
-                  </span>
+                  {!isMobile && (
+                    <span className="text-sm text-gray-600">
+                      {user.name}
+                    </span>
+                  )}
                 </div>
               )}
             </div>
-          </div>
+          </ResponsiveContainer>
         </header>
         
         {/* Main content with pull-to-refresh */}
         <PullToRefresh onRefresh={handleRefresh} disabled={isRefreshing}>
-          <main className="container mx-auto px-4 py-6 pb-24 min-h-screen">
-            <ModeNotification />
-            {children}
+          <main className={`min-h-screen ${
+            isMobile ? 'pb-20' : isTablet ? 'pb-22' : 'pb-24'
+          } ${isMobile ? 'py-4' : 'py-6'}`}>
+            <ResponsiveContainer>
+              <ModeNotification />
+              {children}
+            </ResponsiveContainer>
           </main>
         </PullToRefresh>
         

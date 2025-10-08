@@ -1,9 +1,10 @@
 'use client';
 
 import { useState } from 'react';
-import Button from '@/components/ui/Button';
-import Input from '@/components/ui/Input';
+import { TouchOptimizedButton } from '@/components/ui/TouchOptimizedButton';
+import { TouchOptimizedInput } from '@/components/ui/TouchOptimizedInput';
 import { useTransactions } from '@/hooks/useTransactions';
+import { useRealTimeValidation } from '@/hooks/useRealTimeValidation';
 import { Transaction } from '@/types';
 
 interface IncomeFormProps {
@@ -33,46 +34,44 @@ export function IncomeForm({ onSuccess, onCancel }: IncomeFormProps) {
     date: new Date().toISOString().split('T')[0], // Fecha actual por defecto
   });
   
-  const [errors, setErrors] = useState<FormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [generalError, setGeneralError] = useState<string>('');
 
-  // Validar formulario
-  const validateForm = (): boolean => {
-    const newErrors: FormErrors = {};
-
-    // Validar monto
-    if (!formData.amount.trim()) {
-      newErrors.amount = 'El monto es obligatorio';
-    } else {
-      const amount = parseFloat(formData.amount);
-      if (isNaN(amount) || amount <= 0) {
-        newErrors.amount = 'El monto debe ser un número positivo';
+  // Real-time validation
+  const {
+    errors,
+    handleFieldChange,
+    handleFieldBlur,
+    validateAll,
+    clearErrors
+  } = useRealTimeValidation({
+    amount: {
+      required: true,
+      min: 0.01,
+      custom: (value) => {
+        const num = parseFloat(value);
+        if (isNaN(num)) return 'Debe ser un número válido';
+        if (num <= 0) return 'El monto debe ser positivo';
+        return null;
+      }
+    },
+    description: {
+      required: true,
+      minLength: 3,
+      maxLength: 100
+    },
+    date: {
+      required: true,
+      custom: (value) => {
+        if (!value) return 'La fecha es obligatoria';
+        const selectedDate = new Date(value);
+        const today = new Date();
+        today.setHours(23, 59, 59, 999);
+        if (selectedDate > today) return 'La fecha no puede ser futura';
+        return null;
       }
     }
-
-    // Validar descripción
-    if (!formData.description.trim()) {
-      newErrors.description = 'La descripción es obligatoria';
-    } else if (formData.description.trim().length < 3) {
-      newErrors.description = 'La descripción debe tener al menos 3 caracteres';
-    }
-
-    // Validar fecha
-    if (!formData.date) {
-      newErrors.date = 'La fecha es obligatoria';
-    } else {
-      const selectedDate = new Date(formData.date);
-      const today = new Date();
-      today.setHours(23, 59, 59, 999); // Permitir fecha de hoy
-      
-      if (selectedDate > today) {
-        newErrors.date = 'La fecha no puede ser futura';
-      }
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
+  });
 
   // Manejar cambios en los campos
   const handleInputChange = (field: keyof FormData, value: string) => {
@@ -81,25 +80,34 @@ export function IncomeForm({ onSuccess, onCancel }: IncomeFormProps) {
       [field]: value
     }));
 
-    // Limpiar error del campo cuando el usuario empiece a escribir
-    if (errors[field]) {
-      setErrors(prev => ({
-        ...prev,
-        [field]: undefined
-      }));
+    // Real-time validation
+    handleFieldChange(field, value);
+    
+    // Clear general error when user starts typing
+    if (generalError) {
+      setGeneralError('');
     }
+  };
+
+  // Manejar blur de los campos
+  const handleInputBlur = (field: keyof FormData, value: string) => {
+    handleFieldBlur(field, value);
   };
 
   // Manejar envío del formulario
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!validateForm()) {
+    if (!validateAll({
+      amount: formData.amount,
+      description: formData.description,
+      date: formData.date
+    })) {
       return;
     }
 
     setIsSubmitting(true);
-    setErrors({});
+    setGeneralError('');
 
     try {
       const transactionData = {
@@ -122,13 +130,12 @@ export function IncomeForm({ onSuccess, onCancel }: IncomeFormProps) {
         description: '',
         date: new Date().toISOString().split('T')[0],
       });
-
+      
+      clearErrors();
       onSuccess?.();
     } catch (error) {
       console.error('Error al registrar ingreso:', error);
-      setErrors({
-        general: 'Error al registrar el ingreso. Por favor, inténtalo de nuevo.'
-      });
+      setGeneralError('Error al registrar el ingreso. Por favor, inténtalo de nuevo.');
     } finally {
       setIsSubmitting(false);
     }
@@ -147,107 +154,85 @@ export function IncomeForm({ onSuccess, onCancel }: IncomeFormProps) {
 
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* Campo de Monto */}
-        <div>
-          <label htmlFor="amount" className="block text-sm font-medium text-gray-700 mb-1">
-            Monto *
-          </label>
-          <div className="relative">
-            <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">
-              $
-            </span>
-            <Input
-              id="amount"
-              type="number"
-              step="0.01"
-              min="0"
-              placeholder="0.00"
-              value={formData.amount}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange('amount', e.target.value)}
-              className={`pl-8 ${errors.amount ? 'border-red-500' : ''}`}
-              disabled={isSubmitting}
-            />
-          </div>
-          {errors.amount && (
-            <p className="mt-1 text-sm text-red-600">{errors.amount}</p>
-          )}
-        </div>
+        <TouchOptimizedInput
+          label="Monto *"
+          icon="💰"
+          type="number"
+          step="0.01"
+          min="0"
+          placeholder="0.00"
+          value={formData.amount}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange('amount', e.target.value)}
+          onBlur={() => handleInputBlur('amount', formData.amount)}
+          error={errors.amount}
+          disabled={isSubmitting}
+          inputMode="decimal"
+        />
 
         {/* Campo de Descripción */}
         <div>
-          <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
-            Descripción *
-          </label>
-          <Input
-            id="description"
+          <TouchOptimizedInput
+            label="Descripción *"
+            icon="📝"
             type="text"
             placeholder="Ej: Venta de productos, Servicios prestados..."
             value={formData.description}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange('description', e.target.value)}
-            className={errors.description ? 'border-red-500' : ''}
+            onBlur={() => handleInputBlur('description', formData.description)}
+            error={errors.description}
             disabled={isSubmitting}
             maxLength={100}
           />
-          {errors.description && (
-            <p className="mt-1 text-sm text-red-600">{errors.description}</p>
-          )}
           <p className="mt-1 text-xs text-gray-500">
             {formData.description.length}/100 caracteres
           </p>
         </div>
 
         {/* Campo de Fecha */}
-        <div>
-          <label htmlFor="date" className="block text-sm font-medium text-gray-700 mb-1">
-            Fecha *
-          </label>
-          <Input
-            id="date"
-            type="date"
-            value={formData.date}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange('date', e.target.value)}
-            className={errors.date ? 'border-red-500' : ''}
-            disabled={isSubmitting}
-            max={new Date().toISOString().split('T')[0]} // No permitir fechas futuras
-          />
-          {errors.date && (
-            <p className="mt-1 text-sm text-red-600">{errors.date}</p>
-          )}
-        </div>
+        <TouchOptimizedInput
+          label="Fecha *"
+          icon="📅"
+          type="date"
+          value={formData.date}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange('date', e.target.value)}
+          onBlur={() => handleInputBlur('date', formData.date)}
+          error={errors.date}
+          disabled={isSubmitting}
+          max={new Date().toISOString().split('T')[0]} // No permitir fechas futuras
+        />
 
         {/* Error general */}
-        {errors.general && (
+        {generalError && (
           <div className="bg-red-50 border border-red-200 rounded-md p-3">
-            <p className="text-sm text-red-600">{errors.general}</p>
+            <p className="text-sm text-red-600">{generalError}</p>
           </div>
         )}
 
         {/* Botones */}
-        <div className="flex flex-col sm:flex-row gap-3 pt-4">
-          <Button
+        <div className="flex flex-col gap-3 pt-4">
+          <TouchOptimizedButton
             type="submit"
+            variant="primary"
+            size="lg"
+            icon="💰"
+            loading={isSubmitting || isLoading}
             disabled={isSubmitting || isLoading}
-            className="flex-1 bg-green-600 hover:bg-green-700 text-white"
+            className="w-full bg-green-600 hover:bg-green-700 border-green-600 hover:border-green-700"
           >
-            {isSubmitting ? (
-              <div className="flex items-center justify-center">
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                Registrando...
-              </div>
-            ) : (
-              'Registrar Ingreso'
-            )}
-          </Button>
+            {isSubmitting ? 'Registrando...' : 'Registrar Ingreso'}
+          </TouchOptimizedButton>
           
           {onCancel && (
-            <Button
+            <TouchOptimizedButton
               type="button"
               variant="secondary"
+              size="lg"
               onClick={onCancel}
               disabled={isSubmitting}
-              className="flex-1"
+              className="w-full"
             >
               Cancelar
-            </Button>
+            </TouchOptimizedButton>
           )}
         </div>
       </form>

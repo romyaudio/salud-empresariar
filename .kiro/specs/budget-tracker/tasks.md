@@ -116,7 +116,8 @@
 
     - _Requisitos: 3.1, 3.2_
   
-  - [ ] 6.2 Implementar gráficos y visualizaciones
+  - [x] 6.2 Implementar gráficos y visualizaciones
+
     - Integrar librería de gráficos (Chart.js o similar)
     - Crear gráficos de ingresos vs gastos y desglose por categorías
     - _Requisitos: 3.3, 3.4_
@@ -136,16 +137,21 @@
   - [x] 7.1 Implementar navegación móvil
 
 
+
     - Crear componente MobileNavigation con bottom tabs
     - Implementar gestos de swipe y pull-to-refresh
     - _Requisitos: 4.1, 4.2_
   
-  - [ ] 7.2 Optimizar formularios para móvil
+  - [x] 7.2 Optimizar formularios para móvil
+
+
     - Adaptar formularios para teclados virtuales
     - Implementar validación en tiempo real móvil-friendly
     - _Requisitos: 4.3_
   
-  - [ ] 7.3 Implementar diseño responsive
+  - [x] 7.3 Implementar diseño responsive
+
+
     - Configurar breakpoints y adaptación a diferentes orientaciones
     - Optimizar componentes para diferentes tamaños de pantalla
     - _Requisitos: 4.1, 4.4_

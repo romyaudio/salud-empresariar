@@ -2,10 +2,12 @@
 
 import { useDashboard } from '@/hooks/useDashboard';
 import { useAuthStore } from '@/store/authStore';
+import { useResponsive } from '@/hooks/useResponsive';
 import { TransactionModel } from '@/lib/models/Transaction';
 import { IncomeExpenseChart } from '@/components/charts/IncomeExpenseChart';
 import { CategoryBreakdownChart } from '@/components/charts/CategoryBreakdownChart';
 import { TransactionList } from '@/components/transactions/TransactionList';
+import { ResponsiveContainer, ResponsiveGrid, ResponsiveStack } from '@/components/layout/ResponsiveContainer';
 
 interface DashboardProps {
   className?: string;
@@ -13,6 +15,7 @@ interface DashboardProps {
 
 export function Dashboard({ className = '' }: DashboardProps) {
   const { user } = useAuthStore();
+  const { isMobile, isTablet, isDesktop } = useResponsive();
   const { 
     dashboardData, 
     loading, 
@@ -61,11 +64,16 @@ export function Dashboard({ className = '' }: DashboardProps) {
   };
 
   return (
-    <div className={`space-y-6 ${className}`}>
+    <ResponsiveContainer className={`space-y-6 ${className}`}>
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+      <ResponsiveStack 
+        direction={{ xs: 'col', sm: 'row' }}
+        justify="between"
+        align={isMobile ? 'start' : 'center'}
+        gap={4}
+      >
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">
+          <h1 className={`font-bold text-gray-900 ${isMobile ? 'text-xl' : 'text-2xl'}`}>
             Dashboard
           </h1>
           <p className="text-gray-600 text-sm mt-1">
@@ -74,11 +82,13 @@ export function Dashboard({ className = '' }: DashboardProps) {
         </div>
         
         {/* Period Selector */}
-        <div className="mt-4 sm:mt-0">
+        <div className={isMobile ? 'w-full' : 'w-auto'}>
           <select
             value={selectedPeriod}
             onChange={(e) => setSelectedPeriod(e.target.value as any)}
-            className="block w-full sm:w-auto px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+            className={`block px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm ${
+              isMobile ? 'w-full' : 'w-auto'
+            }`}
           >
             <option value="7d">Últimos 7 días</option>
             <option value="30d">Últimos 30 días</option>
@@ -87,25 +97,28 @@ export function Dashboard({ className = '' }: DashboardProps) {
             <option value="all">Todo el tiempo</option>
           </select>
         </div>
-      </div>
+      </ResponsiveStack>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <ResponsiveGrid 
+        cols={{ xs: 1, sm: 2, md: 3 }}
+        gap={4}
+      >
         {/* Balance Card */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div className={`bg-white rounded-lg shadow-sm border border-gray-200 ${isMobile ? 'p-4' : 'p-6'}`}>
           <div className="flex items-center">
             <div className="flex-shrink-0">
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+              <div className={`${isMobile ? 'w-10 h-10' : 'w-8 h-8'} rounded-full flex items-center justify-center ${
                 balance >= 0 ? 'bg-green-100' : 'bg-red-100'
               }`}>
-                <span className="text-lg">
+                <span className={isMobile ? 'text-xl' : 'text-lg'}>
                   {balance >= 0 ? '💰' : '⚠️'}
                 </span>
               </div>
             </div>
             <div className="ml-4 flex-1">
               <p className="text-sm font-medium text-gray-600">Balance Total</p>
-              <p className={`text-2xl font-bold ${
+              <p className={`font-bold ${isMobile ? 'text-xl' : 'text-2xl'} ${
                 balance >= 0 ? 'text-green-600' : 'text-red-600'
               }`}>
                 {TransactionModel.formatAmount(balance)}
@@ -115,16 +128,16 @@ export function Dashboard({ className = '' }: DashboardProps) {
         </div>
 
         {/* Income Card */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div className={`bg-white rounded-lg shadow-sm border border-gray-200 ${isMobile ? 'p-4' : 'p-6'}`}>
           <div className="flex items-center">
             <div className="flex-shrink-0">
-              <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                <span className="text-lg">📈</span>
+              <div className={`${isMobile ? 'w-10 h-10' : 'w-8 h-8'} bg-green-100 rounded-full flex items-center justify-center`}>
+                <span className={isMobile ? 'text-xl' : 'text-lg'}>📈</span>
               </div>
             </div>
             <div className="ml-4 flex-1">
               <p className="text-sm font-medium text-gray-600">Ingresos</p>
-              <p className="text-2xl font-bold text-green-600">
+              <p className={`font-bold text-green-600 ${isMobile ? 'text-xl' : 'text-2xl'}`}>
                 {TransactionModel.formatAmount(totalIncome)}
               </p>
             </div>
@@ -132,32 +145,35 @@ export function Dashboard({ className = '' }: DashboardProps) {
         </div>
 
         {/* Expenses Card */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div className={`bg-white rounded-lg shadow-sm border border-gray-200 ${isMobile ? 'p-4' : 'p-6'}`}>
           <div className="flex items-center">
             <div className="flex-shrink-0">
-              <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
-                <span className="text-lg">📉</span>
+              <div className={`${isMobile ? 'w-10 h-10' : 'w-8 h-8'} bg-red-100 rounded-full flex items-center justify-center`}>
+                <span className={isMobile ? 'text-xl' : 'text-lg'}>📉</span>
               </div>
             </div>
             <div className="ml-4 flex-1">
               <p className="text-sm font-medium text-gray-600">Gastos</p>
-              <p className="text-2xl font-bold text-red-600">
+              <p className={`font-bold text-red-600 ${isMobile ? 'text-xl' : 'text-2xl'}`}>
                 {TransactionModel.formatAmount(totalExpenses)}
               </p>
             </div>
           </div>
         </div>
-      </div>
+      </ResponsiveGrid>
 
       {/* Charts Section */}
       {dashboardData && (dashboardData.monthlyData.length > 0 || dashboardData.categoryBreakdown.length > 0) && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <ResponsiveGrid 
+          cols={{ xs: 1, lg: 2 }}
+          gap={6}
+        >
           {/* Income vs Expense Chart */}
           <IncomeExpenseChart data={dashboardData} />
           
           {/* Category Breakdown Chart */}
           <CategoryBreakdownChart data={dashboardData} type="expense" />
-        </div>
+        </ResponsiveGrid>
       )}
 
       {/* Recent Transactions with Full Functionality */}
@@ -170,41 +186,52 @@ export function Dashboard({ className = '' }: DashboardProps) {
       />
 
       {/* Quick Actions */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">
+      <div className={`bg-white rounded-lg shadow-sm border border-gray-200 ${isMobile ? 'p-4' : 'p-6'}`}>
+        <h2 className={`font-semibold text-gray-900 mb-4 ${isMobile ? 'text-base' : 'text-lg'}`}>
           Acciones Rápidas
         </h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <ResponsiveGrid 
+          cols={{ xs: 2, md: 4 }}
+          gap={3}
+        >
           <button
             onClick={() => window.location.href = '/income'}
-            className="flex flex-col items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+            className={`flex flex-col items-center border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors touch-manipulation ${
+              isMobile ? 'p-3' : 'p-4'
+            }`}
           >
-            <span className="text-2xl mb-2">💰</span>
-            <span className="text-sm font-medium text-gray-700">Ingreso</span>
+            <span className={`mb-2 ${isMobile ? 'text-xl' : 'text-2xl'}`}>💰</span>
+            <span className={`font-medium text-gray-700 ${isMobile ? 'text-xs' : 'text-sm'}`}>Ingreso</span>
           </button>
           <button
             onClick={() => window.location.href = '/expenses'}
-            className="flex flex-col items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+            className={`flex flex-col items-center border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors touch-manipulation ${
+              isMobile ? 'p-3' : 'p-4'
+            }`}
           >
-            <span className="text-2xl mb-2">💸</span>
-            <span className="text-sm font-medium text-gray-700">Gasto</span>
+            <span className={`mb-2 ${isMobile ? 'text-xl' : 'text-2xl'}`}>💸</span>
+            <span className={`font-medium text-gray-700 ${isMobile ? 'text-xs' : 'text-sm'}`}>Gasto</span>
           </button>
           <button
             onClick={() => window.location.href = '/categories'}
-            className="flex flex-col items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+            className={`flex flex-col items-center border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors touch-manipulation ${
+              isMobile ? 'p-3' : 'p-4'
+            }`}
           >
-            <span className="text-2xl mb-2">📋</span>
-            <span className="text-sm font-medium text-gray-700">Categorías</span>
+            <span className={`mb-2 ${isMobile ? 'text-xl' : 'text-2xl'}`}>📋</span>
+            <span className={`font-medium text-gray-700 ${isMobile ? 'text-xs' : 'text-sm'}`}>Categorías</span>
           </button>
           <button
             onClick={refetch}
-            className="flex flex-col items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+            className={`flex flex-col items-center border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors touch-manipulation ${
+              isMobile ? 'p-3' : 'p-4'
+            }`}
           >
-            <span className="text-2xl mb-2">🔄</span>
-            <span className="text-sm font-medium text-gray-700">Actualizar</span>
+            <span className={`mb-2 ${isMobile ? 'text-xl' : 'text-2xl'}`}>🔄</span>
+            <span className={`font-medium text-gray-700 ${isMobile ? 'text-xs' : 'text-sm'}`}>Actualizar</span>
           </button>
-        </div>
+        </ResponsiveGrid>
       </div>
-    </div>
+    </ResponsiveContainer>
   );
 }
