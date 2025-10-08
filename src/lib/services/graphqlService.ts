@@ -60,7 +60,10 @@ export class GraphQLService {
         return { success: true, data: mockTransaction };
       }
 
+      console.log('🔍 GraphQL createTransaction - Starting...');
+      
       const userId = await this.getCurrentUserId();
+      console.log('🔍 Current user ID:', userId);
       
       const variables = {
         type: data.type.toUpperCase(),
@@ -74,10 +77,15 @@ export class GraphQLService {
         tags: data.tags,
       };
 
+      console.log('🔍 GraphQL variables:', variables);
+      console.log('🔍 GraphQL query:', CREATE_TRANSACTION);
+
       const response = await client.graphql({
         query: CREATE_TRANSACTION,
         variables,
       }) as any;
+
+      console.log('🔍 GraphQL response:', response);
 
       if (response.data?.createTransaction) {
         // Convert owner to userId for compatibility
@@ -86,21 +94,41 @@ export class GraphQLService {
           userId: response.data.createTransaction.owner
         };
         
+        console.log('✅ Transaction created successfully:', transaction);
+        
         return { 
           success: true, 
           data: transaction as Transaction 
         };
       } else {
+        console.error('❌ No data in GraphQL response:', response);
         return { 
           success: false, 
-          error: 'Error al crear la transacción' 
+          error: 'No se recibieron datos de la transacción' 
         };
       }
     } catch (error: any) {
-      console.error('Error creating transaction:', error);
+      console.error('❌ GraphQL createTransaction error:', error);
+      console.error('❌ Error name:', error.name);
+      console.error('❌ Error message:', error.message);
+      console.error('❌ Error code:', error.code);
+      console.error('❌ Error stack:', error.stack);
+      
+      if (error.errors) {
+        console.error('❌ GraphQL errors:', error.errors);
+      }
+      
+      let errorMessage = 'Error al crear la transacción';
+      
+      if (error.errors && error.errors.length > 0) {
+        errorMessage = error.errors[0].message || errorMessage;
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
       return { 
         success: false, 
-        error: error.message || 'Error al crear la transacción' 
+        error: errorMessage
       };
     }
   }

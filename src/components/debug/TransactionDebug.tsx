@@ -48,6 +48,9 @@ export function TransactionDebug() {
       };
 
       console.log('🧪 Testing transaction creation with data:', testData);
+      console.log('🧪 User context:', user);
+      console.log('🧪 Demo mode:', isDemoMode());
+      console.log('🧪 Using real AWS:', isUsingRealAWS());
       
       const result = await createTransaction(testData);
       
@@ -57,14 +60,18 @@ export function TransactionDebug() {
         status: result.success ? 'success' : 'error',
         message: result.success ? 'Transacción creada exitosamente' : result.error,
         data: result.data,
-        fullResult: result
+        fullResult: result,
+        testData: testData,
+        userContext: user
       });
     } catch (error: any) {
       console.error('🧪 Transaction creation error:', error);
+      console.error('🧪 Error stack:', error.stack);
       setTestResult({
         status: 'error',
         message: error.message || 'Error desconocido',
-        error: error
+        error: error,
+        errorStack: error.stack
       });
     }
   };

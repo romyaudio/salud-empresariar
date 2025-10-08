@@ -73,7 +73,7 @@ export default function IncomePage() {
             onCancel={handleCancel}
           />
 
-          {/* Debug Component - Temporal */}
+          {/* Debug Component - Para diagnosticar GraphQL */}
           <div className="mt-6">
             <TransactionDebug />
           </div>

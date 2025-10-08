@@ -5,7 +5,6 @@ import { ExpenseForm } from '@/components/forms/ExpenseForm';
 import AppLayout from '@/components/layout/AppLayout';
 import Button from '@/components/ui/Button';
 import { useRouter } from 'next/navigation';
-import { TransactionDebug } from '@/components/debug/TransactionDebug';
 
 export default function ExpensesPage() {
   const router = useRouter();
@@ -72,11 +71,6 @@ export default function ExpensesPage() {
             onSuccess={handleSuccess}
             onCancel={handleCancel}
           />
-
-          {/* Debug Component - Temporal */}
-          <div className="mt-6">
-            <TransactionDebug />
-          </div>
 
           {/* Información adicional */}
           <div className="mt-6 bg-white rounded-lg shadow-sm p-4">

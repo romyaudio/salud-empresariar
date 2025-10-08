@@ -3,6 +3,7 @@
 import { ReactNode } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useAuthStore } from '@/store/authStore';
+import { ModeNotification } from '@/components/ui/ModeNotification';
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -73,6 +74,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
       
       {/* Main content */}
       <main className="container mx-auto px-4 py-6 pb-20">
+        <ModeNotification />
         {children}
       </main>
       
