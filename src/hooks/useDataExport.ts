@@ -1,9 +1,6 @@
 'use client';
 
 import { useState, useCallback } from 'react';
-import jsPDF from 'jspdf';
-import autoTable from 'jspdf-autotable';
-import Papa from 'papaparse';
 import { Transaction } from '@/types';
 import { TransactionModel } from '@/lib/models/Transaction';
 import { useNativeShare } from './useNativeShare';
@@ -103,7 +100,9 @@ export function useDataExport() {
     };
   }, [filterTransactionsByPeriod]);
 
-  const exportToCSV = useCallback((data: ExportData, options: ExportOptions): string => {
+  const exportToCSV = useCallback(async (data: ExportData, options: ExportOptions): Promise<string> => {
+    // Dynamic import to avoid SSR issues
+    const Papa = (await import('papaparse')).default;
     const headers = [
       'Fecha',
       'Tipo',
@@ -155,7 +154,10 @@ export function useDataExport() {
     });
   }, []);
 
-  const exportToPDF = useCallback((data: ExportData, options: ExportOptions): jsPDF => {
+  const exportToPDF = useCallback(async (data: ExportData, options: ExportOptions): Promise<any> => {
+    // Dynamic imports to avoid SSR issues
+    const jsPDF = (await import('jspdf')).default;
+    const autoTable = (await import('jspdf-autotable')).default;
     const doc = new jsPDF();
     
     // Header
@@ -247,7 +249,7 @@ export function useDataExport() {
       let content: string | Blob;
 
       if (options.format === 'csv') {
-        content = exportToCSV(exportData, options);
+        content = await exportToCSV(exportData, options);
         filename = `transacciones_${getPeriodFilename(options.period)}.csv`;
         
         // Create blob
@@ -267,7 +269,7 @@ export function useDataExport() {
           downloadFile(blob, filename);
         }
       } else {
-        const pdf = exportToPDF(exportData, options);
+        const pdf = await exportToPDF(exportData, options);
         filename = `reporte_financiero_${getPeriodFilename(options.period)}.pdf`;
         
         if (options.share && isShareSupported) {

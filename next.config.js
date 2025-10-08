@@ -32,8 +32,23 @@ const nextConfig = {
         fs: false,
         net: false,
         tls: false,
+        canvas: false,
       };
     }
+    
+    // Handle jsPDF and related dependencies
+    config.externals = config.externals || [];
+    config.externals.push({
+      'html2canvas': 'html2canvas',
+      'dompurify': 'dompurify',
+      'canvg': 'canvg'
+    });
+    
+    // Ignore optional dependencies that might cause issues
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      'canvas': false,
+    };
     
     return config;
   },

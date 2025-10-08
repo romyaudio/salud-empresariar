@@ -194,6 +194,7 @@
   - [x] 9.2 Implementar estados de carga y offline
 
 
+
     - Crear componentes LoadingSpinner y estados de carga
     - Implementar funcionalidad básica offline con cache
     - _Requisitos: 5.3_
