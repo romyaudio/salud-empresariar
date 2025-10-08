@@ -36,6 +36,13 @@ const nextConfig = {
       };
     }
 
+    // Configure path aliases for TypeScript paths
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      '@': require('path').resolve(__dirname, 'src'),
+      'canvas': false,
+    };
+
     // Handle jsPDF and related dependencies
     config.externals = config.externals || [];
     config.externals.push({
@@ -43,12 +50,6 @@ const nextConfig = {
       'dompurify': 'dompurify',
       'canvg': 'canvg'
     });
-
-    // Ignore optional dependencies that might cause issues
-    config.resolve.alias = {
-      ...config.resolve.alias,
-      'canvas': false,
-    };
 
     return config;
   },
