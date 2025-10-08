@@ -152,6 +152,7 @@
   - [x] 7.3 Implementar diseño responsive
 
 
+
     - Configurar breakpoints y adaptación a diferentes orientaciones
     - Optimizar componentes para diferentes tamaños de pantalla
     - _Requisitos: 4.1, 4.4_
@@ -162,12 +163,16 @@
     - _Requisitos: 4.1, 4.2, 4.3, 4.4_
 
 - [ ] 8. Implementar funcionalidad de exportación de datos
-  - [ ] 8.1 Crear componente de exportación
+  - [x] 8.1 Crear componente de exportación
+
+
     - Desarrollar interfaz para selección de período y formato
     - Implementar generación de archivos CSV y PDF
     - _Requisitos: 6.1, 6.2, 6.3_
   
-  - [ ] 8.2 Integrar funcionalidad de descarga/compartir
+  - [x] 8.2 Integrar funcionalidad de descarga/compartir
+
+
     - Implementar descarga de archivos en dispositivos móviles
     - Crear funcionalidad de compartir nativa
     - _Requisitos: 6.4_

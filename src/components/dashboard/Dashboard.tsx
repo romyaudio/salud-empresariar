@@ -8,6 +8,7 @@ import { IncomeExpenseChart } from '@/components/charts/IncomeExpenseChart';
 import { CategoryBreakdownChart } from '@/components/charts/CategoryBreakdownChart';
 import { TransactionList } from '@/components/transactions/TransactionList';
 import { ResponsiveContainer, ResponsiveGrid, ResponsiveStack } from '@/components/layout/ResponsiveContainer';
+import { ExportButton } from '@/components/export/ExportButton';
 
 interface DashboardProps {
   className?: string;
@@ -81,8 +82,13 @@ export function Dashboard({ className = '' }: DashboardProps) {
           </p>
         </div>
         
-        {/* Period Selector */}
-        <div className={isMobile ? 'w-full' : 'w-auto'}>
+        {/* Controls */}
+        <ResponsiveStack 
+          direction={{ xs: 'col', sm: 'row' }}
+          gap={3}
+          className={isMobile ? 'w-full' : 'w-auto'}
+        >
+          {/* Period Selector */}
           <select
             value={selectedPeriod}
             onChange={(e) => setSelectedPeriod(e.target.value as any)}
@@ -96,7 +102,14 @@ export function Dashboard({ className = '' }: DashboardProps) {
             <option value="1y">Último año</option>
             <option value="all">Todo el tiempo</option>
           </select>
-        </div>
+          
+          {/* Export Button */}
+          <ExportButton 
+            variant="secondary"
+            size={isMobile ? 'md' : 'sm'}
+            showLabel={!isMobile}
+          />
+        </ResponsiveStack>
       </ResponsiveStack>
 
       {/* Summary Cards */}
