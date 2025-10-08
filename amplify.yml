@@ -3,15 +3,26 @@ frontend:
   phases:
     preBuild:
       commands:
-        - echo "Installing dependencies..."
+        - echo "🚀 Starting Budget Tracker deployment..."
+        - echo "📦 Installing dependencies..."
         - npm ci --prefer-offline --no-audit --omit=optional
-        - echo "Creating amplify_outputs.json..."
+        - echo "🔧 Running pre-deployment validations..."
+        - node scripts/pre-deploy.js
+        - echo "📄 Creating amplify_outputs.json..."
         - node scripts/create-amplify-outputs.js
+        - echo "🧪 Running tests..."
+        - npm run test:ci
+        - echo "🔍 Type checking..."
+        - npm run type-check
     build:
       commands:
-        - echo "Building Next.js application..."
+        - echo "🏗️ Building Next.js application..."
         - npm run build
-        - echo "Build completed successfully!"
+        - echo "✅ Build completed successfully!"
+        - echo "📊 Build statistics:"
+        - du -sh .next/
+        - echo "🔍 Verifying build artifacts..."
+        - ls -la .next/
   artifacts:
     baseDirectory: .next
     files:

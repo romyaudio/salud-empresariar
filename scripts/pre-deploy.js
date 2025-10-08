@@ -76,27 +76,37 @@ async function main() {
     success = false;
   }
   
-  // 4. Verificar tipos de TypeScript
+  // 4. Ejecutar linting
+  if (!runCommand('npm run lint', 'Ejecutando linting')) {
+    console.warn('⚠️  Linting falló, pero continuando...');
+  }
+  
+  // 5. Verificar tipos de TypeScript
   if (!runCommand('npm run type-check', 'Verificando tipos de TypeScript')) {
     success = false;
   }
   
-  // 5. Ejecutar tests
-  if (!runCommand('npm run test -- --passWithNoTests --silent --watchAll=false', 'Ejecutando tests')) {
+  // 6. Ejecutar tests
+  if (!runCommand('npm run test:ci', 'Ejecutando tests con coverage')) {
     success = false;
   }
   
-  // 6. Generar amplify_outputs.json
+  // 7. Generar amplify_outputs.json
   if (!runCommand('node scripts/create-amplify-outputs.js', 'Generando amplify_outputs.json')) {
     success = false;
   }
   
-  // 7. Build de producción
+  // 8. Build de producción
   if (!runCommand('npm run build', 'Construyendo aplicación para producción')) {
     success = false;
   }
   
-  // 8. Verificar que el build generó los archivos correctos
+  // 9. Validar build
+  if (!runCommand('npm run validate-build', 'Validando build generado')) {
+    success = false;
+  }
+  
+  // 10. Verificar que el build generó los archivos correctos
   console.log('📋 Verificando archivos de build...');
   if (!fs.existsSync('.next')) {
     console.error('❌ Directorio .next no encontrado después del build');

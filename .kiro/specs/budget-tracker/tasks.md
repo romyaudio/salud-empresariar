@@ -28,7 +28,8 @@
     - Crear middleware de protección de rutas
     - _Requisitos: 5.2, 5.4_
   
-  - [ ]* 2.3 Escribir tests para autenticación
+  - [x]* 2.3 Escribir tests para autenticación
+
     - Crear tests unitarios para componentes de auth
     - Implementar tests de integración para flujos de login/logout
     - _Requisitos: 5.2_
@@ -49,6 +50,7 @@
     - Implementar resolvers GraphQL para operaciones CRUD
     - _Requisitos: 5.1_
   
+
   - [ ]* 3.3 Crear tests para modelos de datos
     - Escribir tests unitarios para validación de datos
     - Implementar tests de integración para operaciones de base de datos
@@ -71,7 +73,10 @@
     - Implementar manejo de errores y estados de carga
     - _Requisitos: 1.2, 1.3_
   
-  - [ ]* 4.3 Escribir tests para registro de ingresos
+  - [x]* 4.3 Escribir tests para registro de ingresos
+
+
+
     - Crear tests unitarios para componente IncomeForm
     - Implementar tests de integración para flujo completo
     - _Requisitos: 1.1, 1.2, 1.4_
@@ -86,6 +91,7 @@
     - _Requisitos: 2.1, 2.2_
   
   - [x] 5.2 Crear formulario de registro de gastos
+
 
 
 
@@ -124,6 +130,7 @@
   
   - [x] 6.3 Crear lista de transacciones recientes
 
+
     - Desarrollar componente TransactionList con paginación
     - Implementar filtros por tipo, categoría y fecha
     - _Requisitos: 3.1, 3.2_
@@ -153,6 +160,7 @@
 
 
 
+
     - Configurar breakpoints y adaptación a diferentes orientaciones
     - Optimizar componentes para diferentes tamaños de pantalla
     - _Requisitos: 4.1, 4.4_
@@ -174,6 +182,7 @@
 
 
 
+
     - Implementar descarga de archivos en dispositivos móviles
     - Crear funcionalidad de compartir nativa
     - _Requisitos: 6.4_
@@ -191,6 +200,8 @@
     - Desarrollar sistema de notificaciones y mensajes de error
     - _Requisitos: 5.3_
   
+
+
   - [x] 9.2 Implementar estados de carga y offline
 
 
@@ -205,17 +216,28 @@
     - _Requisitos: 5.3_
 
 - [ ] 10. Configurar testing y preparar para despliegue
-  - [ ] 10.1 Configurar suite completa de testing
+  - [x] 10.1 Configurar suite completa de testing
+
+
+
+
+
     - Configurar Jest y React Testing Library
     - Implementar configuración de coverage y scripts de testing
     - _Requisitos: 7.1_
+
+
   
-  - [ ] 10.2 Preparar configuración de despliegue
+  - [x] 10.2 Preparar configuración de despliegue
+
+
     - Configurar amplify.yml para despliegue manual
     - Crear scripts de build y validación pre-despliegue
     - _Requisitos: 7.2, 7.3, 7.4_
   
-  - [ ] 10.3 Crear documentación de despliegue
+  - [x] 10.3 Crear documentación de despliegue
+
+
     - Documentar proceso de despliegue manual paso a paso
     - Crear checklist de verificación post-despliegue
     - _Requisitos: 7.2, 7.3, 7.4_
