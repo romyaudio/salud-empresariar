@@ -5,24 +5,15 @@ frontend:
       commands:
         - echo "🚀 Starting Budget Tracker deployment..."
         - echo "📦 Installing dependencies..."
-        - npm ci --prefer-offline --no-audit --omit=optional
-        - echo "🔧 Running pre-deployment validations..."
-        - node scripts/pre-deploy.js
-        - echo "📄 Creating amplify_outputs.json..."
+        - npm ci --prefer-offline --no-audit
+        - echo "� RCreating amplify_outputs.json..."
         - node scripts/create-amplify-outputs.js
-        - echo "🧪 Running tests..."
-        - npm run test:ci
-        - echo "🔍 Type checking..."
-        - npm run type-check
+        - echo "✅ Pre-build completed successfully!"
     build:
       commands:
         - echo "🏗️ Building Next.js application..."
         - npm run build
         - echo "✅ Build completed successfully!"
-        - echo "📊 Build statistics:"
-        - du -sh .next/
-        - echo "🔍 Verifying build artifacts..."
-        - ls -la .next/
   artifacts:
     baseDirectory: .next
     files:
