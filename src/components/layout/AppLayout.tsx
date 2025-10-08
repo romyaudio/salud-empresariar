@@ -9,7 +9,7 @@ interface AppLayoutProps {
   children: ReactNode;
 }
 
-export default function AppLayout({ children }: AppLayoutProps) {
+export function AppLayout({ children }: AppLayoutProps) {
   const { user } = useAuthStore();
   const router = useRouter();
   const pathname = usePathname();
@@ -21,6 +21,13 @@ export default function AppLayout({ children }: AppLayoutProps) {
       icon: '📊',
       path: '/',
       isActive: pathname === '/'
+    },
+    {
+      id: 'transactions',
+      label: 'Transacciones',
+      icon: '📋',
+      path: '/transactions',
+      isActive: pathname === '/transactions'
     },
     {
       id: 'income',
@@ -39,7 +46,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
     {
       id: 'categories',
       label: 'Categorías',
-      icon: '📋',
+      icon: '🏷️',
       path: '/categories',
       isActive: pathname === '/categories'
     }
@@ -102,3 +109,5 @@ export default function AppLayout({ children }: AppLayoutProps) {
     </div>
   );
 }
+
+export default AppLayout;

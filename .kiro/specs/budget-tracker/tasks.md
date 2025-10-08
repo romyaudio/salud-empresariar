@@ -108,7 +108,12 @@
 
 
 
+
     - Desarrollar selector de períodos de tiempo
+
+
+
+
     - _Requisitos: 3.1, 3.2_
   
   - [ ] 6.2 Implementar gráficos y visualizaciones
