@@ -121,7 +121,8 @@
     - Crear gráficos de ingresos vs gastos y desglose por categorías
     - _Requisitos: 3.3, 3.4_
   
-  - [ ] 6.3 Crear lista de transacciones recientes
+  - [x] 6.3 Crear lista de transacciones recientes
+
     - Desarrollar componente TransactionList con paginación
     - Implementar filtros por tipo, categoría y fecha
     - _Requisitos: 3.1, 3.2_
@@ -132,7 +133,9 @@
     - _Requisitos: 3.1, 3.2, 3.3, 3.4_
 
 - [ ] 7. Optimizar interfaz para dispositivos móviles
-  - [ ] 7.1 Implementar navegación móvil
+  - [x] 7.1 Implementar navegación móvil
+
+
     - Crear componente MobileNavigation con bottom tabs
     - Implementar gestos de swipe y pull-to-refresh
     - _Requisitos: 4.1, 4.2_
