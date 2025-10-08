@@ -5,6 +5,8 @@ frontend:
       commands:
         - echo "Installing dependencies..."
         - npm install --prefer-offline --no-audit
+        - echo "Creating amplify_outputs.json..."
+        - node scripts/create-amplify-outputs.js
         - echo "Running type check..."
         - npm run type-check
         - echo "Running tests..."

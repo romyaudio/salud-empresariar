@@ -18,6 +18,7 @@
     "debug:auth": "node scripts/debug-auth.js",
     "verify:cognito": "node scripts/verify-cognito.js",
     "setup:outputs": "node scripts/setup-amplify-outputs.js",
+    "create:outputs": "node scripts/create-amplify-outputs.js",
     "analyze": "ANALYZE=true npm run build",
     "type-check": "tsc --noEmit"
   },
