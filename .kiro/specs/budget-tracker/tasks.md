@@ -103,7 +103,11 @@
 
 
 
+
     - Implementar resumen de balance, ingresos y gastos totales
+
+
+
     - Desarrollar selector de períodos de tiempo
     - _Requisitos: 3.1, 3.2_
   

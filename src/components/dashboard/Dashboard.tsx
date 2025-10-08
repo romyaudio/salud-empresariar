@@ -3,6 +3,8 @@
 import { useDashboard } from '@/hooks/useDashboard';
 import { useAuthStore } from '@/store/authStore';
 import { TransactionModel } from '@/lib/models/Transaction';
+import { IncomeExpenseChart } from '@/components/charts/IncomeExpenseChart';
+import { CategoryBreakdownChart } from '@/components/charts/CategoryBreakdownChart';
 
 interface DashboardProps {
   className?: string;
@@ -145,6 +147,17 @@ export function Dashboard({ className = '' }: DashboardProps) {
           </div>
         </div>
       </div>
+
+      {/* Charts Section */}
+      {dashboardData && (dashboardData.monthlyData.length > 0 || dashboardData.categoryBreakdown.length > 0) && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Income vs Expense Chart */}
+          <IncomeExpenseChart data={dashboardData} />
+          
+          {/* Category Breakdown Chart */}
+          <CategoryBreakdownChart data={dashboardData} type="expense" />
+        </div>
+      )}
 
       {/* Recent Transactions */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200">
