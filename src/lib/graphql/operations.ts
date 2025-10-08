@@ -31,7 +31,7 @@ export const CREATE_TRANSACTION = `
       category
       subcategory
       date
-      userId
+      owner
       paymentMethod
       reference
       tags
@@ -73,7 +73,7 @@ export const UPDATE_TRANSACTION = `
       category
       subcategory
       date
-      userId
+      owner
       paymentMethod
       reference
       tags
@@ -93,21 +93,23 @@ export const DELETE_TRANSACTION = `
 
 // Transaction Queries
 export const GET_TRANSACTIONS = `
-  query GetTransactions($userId: String!) {
-    getTransactionsByUser(userId: $userId) {
-      id
-      type
-      amount
-      description
-      category
-      subcategory
-      date
-      userId
-      paymentMethod
-      reference
-      tags
-      createdAt
-      updatedAt
+  query ListTransactions {
+    listTransactions {
+      items {
+        id
+        type
+        amount
+        description
+        category
+        subcategory
+        date
+        owner
+        paymentMethod
+        reference
+        tags
+        createdAt
+        updatedAt
+      }
     }
   }
 `;
@@ -122,7 +124,7 @@ export const GET_TRANSACTION = `
       category
       subcategory
       date
-      userId
+      owner
       paymentMethod
       reference
       tags
@@ -154,7 +156,7 @@ export const CREATE_CATEGORY = `
       name
       type
       subcategories
-      userId
+      owner
       color
       icon
       isDefault
@@ -183,7 +185,7 @@ export const UPDATE_CATEGORY = `
       name
       type
       subcategories
-      userId
+      owner
       color
       icon
       isDefault
@@ -203,18 +205,20 @@ export const DELETE_CATEGORY = `
 
 // Category Queries
 export const GET_CATEGORIES = `
-  query GetCategories($userId: String!) {
-    getCategoriesByUser(userId: $userId) {
-      id
-      name
-      type
-      subcategories
-      userId
-      color
-      icon
-      isDefault
-      createdAt
-      updatedAt
+  query ListCategories {
+    listCategories {
+      items {
+        id
+        name
+        type
+        subcategories
+        owner
+        color
+        icon
+        isDefault
+        createdAt
+        updatedAt
+      }
     }
   }
 `;

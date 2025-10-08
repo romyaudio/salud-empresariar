@@ -80,9 +80,15 @@ export class GraphQLService {
       }) as any;
 
       if (response.data?.createTransaction) {
+        // Convert owner to userId for compatibility
+        const transaction = {
+          ...response.data.createTransaction,
+          userId: response.data.createTransaction.owner
+        };
+        
         return { 
           success: true, 
-          data: response.data.createTransaction as Transaction 
+          data: transaction as Transaction 
         };
       } else {
         return { 
@@ -219,17 +225,20 @@ export class GraphQLService {
         return { success: true, data: mockTransactions };
       }
 
-      const userId = await this.getCurrentUserId();
-      
       const response = await client.graphql({
         query: GET_TRANSACTIONS,
-        variables: { userId },
       }) as any;
 
-      if (response.data?.getTransactionsByUser) {
+      if (response.data?.listTransactions?.items) {
+        // Convert owner to userId for compatibility
+        const transactions = response.data.listTransactions.items.map((item: any) => ({
+          ...item,
+          userId: item.owner
+        }));
+        
         return { 
           success: true, 
-          data: response.data.getTransactionsByUser as Transaction[] 
+          data: transactions as Transaction[] 
         };
       } else {
         return { 
@@ -374,17 +383,20 @@ export class GraphQLService {
         return { success: true, data: mockCategories };
       }
 
-      const userId = await this.getCurrentUserId();
-      
       const response = await client.graphql({
         query: GET_CATEGORIES,
-        variables: { userId },
       }) as any;
 
-      if (response.data?.getCategoriesByUser) {
+      if (response.data?.listCategories?.items) {
+        // Convert owner to userId for compatibility
+        const categories = response.data.listCategories.items.map((item: any) => ({
+          ...item,
+          userId: item.owner
+        }));
+        
         return { 
           success: true, 
-          data: response.data.getCategoriesByUser as Category[] 
+          data: categories as Category[] 
         };
       } else {
         return { 
