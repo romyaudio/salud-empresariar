@@ -60,4 +60,5 @@ amplify_outputs.json
 
 # Credentials files
 AMPLIFY_CREDENTIALS.txt
+AMPLIFY_S3_VARIABLES.txt
 *.credentials
