@@ -57,3 +57,7 @@ amplifytools.xcconfig
 
 # AWS Amplify sensitive files
 amplify_outputs.json
+
+# Credentials files
+AMPLIFY_CREDENTIALS.txt
+*.credentials

@@ -43,6 +43,7 @@
     "canvg": "^4.0.3",
     "chart.js": "^4.5.0",
     "dompurify": "^3.2.7",
+    "dotenv": "^17.2.3",
     "eslint": "^8",
     "eslint-config-next": "14.2.3",
     "html2canvas": "^1.4.1",
