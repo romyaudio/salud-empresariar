@@ -53,6 +53,22 @@ const saveToStorage = (key: string, data: any) => {
   }
 };
 
+// Enhanced storage helper that saves with both user ID and email
+const saveToStorageWithBackup = (baseKey: string, userId: string, email: string | undefined, data: any) => {
+  // Save with user ID (primary)
+  saveToStorage(`${baseKey}_${userId}`, data);
+  
+  // Save with email as backup (if available)
+  if (email) {
+    saveToStorage(`${baseKey}_${email}`, data);
+  }
+  
+  console.log('💾 Saved profile data with keys:', {
+    primary: `${baseKey}_${userId}`,
+    backup: email ? `${baseKey}_${email}` : 'none'
+  });
+};
+
 const loadFromStorage = (key: string) => {
   if (typeof window !== 'undefined') {
     const stored = localStorage.getItem(key);
@@ -114,9 +130,43 @@ export function useProfile() {
         setIsLoading(true);
         setError(null);
 
-        // Load from localStorage
-        let storedUserProfile = loadFromStorage(`${USER_PROFILE_KEY}_${user.id}`);
-        let storedCompanyProfile = loadFromStorage(`${COMPANY_PROFILE_KEY}_${user.id}`);
+        console.log('🔍 Loading profile for user:', { 
+          userId: user.id, 
+          email: user.email,
+          name: user.name 
+        });
+
+        // Load from localStorage with user ID
+        const userProfileKey = `${USER_PROFILE_KEY}_${user.id}`;
+        const companyProfileKey = `${COMPANY_PROFILE_KEY}_${user.id}`;
+        
+        let storedUserProfile = loadFromStorage(userProfileKey);
+        let storedCompanyProfile = loadFromStorage(companyProfileKey);
+
+        console.log('📊 Profile data found:', {
+          userProfile: !!storedUserProfile,
+          hasProfileImage: !!storedUserProfile?.profileImage,
+          profileImageUrl: storedUserProfile?.profileImage?.substring(0, 50) + '...',
+          companyProfile: !!storedCompanyProfile
+        });
+
+        // If no data found with user ID, try with email as backup
+        if (!storedUserProfile && user.email) {
+          console.log('🔄 Trying backup key with email:', user.email);
+          const emailUserProfileKey = `${USER_PROFILE_KEY}_${user.email}`;
+          const emailCompanyProfileKey = `${COMPANY_PROFILE_KEY}_${user.email}`;
+          
+          storedUserProfile = loadFromStorage(emailUserProfileKey);
+          storedCompanyProfile = loadFromStorage(emailCompanyProfileKey);
+          
+          if (storedUserProfile) {
+            console.log('✅ Found profile data using email key');
+            // Migrate data to user ID key for future use
+            saveToStorage(userProfileKey, storedUserProfile);
+            saveToStorage(companyProfileKey, storedCompanyProfile);
+            console.log('🔄 Migrated profile data to user ID key');
+          }
+        }
 
         // If no stored data, create default profiles with user info
         if (!storedUserProfile) {
@@ -127,12 +177,12 @@ export function useProfile() {
             firstName: nameParts[0] || '',
             lastName: nameParts.slice(1).join(' ') || '',
           };
-          saveToStorage(`${USER_PROFILE_KEY}_${user.id}`, storedUserProfile);
+          saveToStorageWithBackup(USER_PROFILE_KEY, user.id, user.email, storedUserProfile);
         }
 
         if (!storedCompanyProfile) {
           storedCompanyProfile = getDefaultCompanyProfile(user.id);
-          saveToStorage(`${COMPANY_PROFILE_KEY}_${user.id}`, storedCompanyProfile);
+          saveToStorageWithBackup(COMPANY_PROFILE_KEY, user.id, user.email, storedCompanyProfile);
         }
 
         // Simulate a small delay for better UX
@@ -174,7 +224,7 @@ export function useProfile() {
       };
 
       setUserProfile(updatedProfile);
-      saveToStorage(`${USER_PROFILE_KEY}_${user.id}`, updatedProfile);
+      saveToStorageWithBackup(USER_PROFILE_KEY, user.id, user.email, updatedProfile);
 
       // Notify other components about the profile update
       window.dispatchEvent(new CustomEvent('userProfileUpdated', { 
@@ -223,7 +273,7 @@ export function useProfile() {
       };
       
       setCompanyProfile(updatedProfile);
-      saveToStorage(`${COMPANY_PROFILE_KEY}_${user.id}`, updatedProfile);
+      saveToStorageWithBackup(COMPANY_PROFILE_KEY, user.id, user.email, updatedProfile);
 
       // Notify other components about the company profile update
       window.dispatchEvent(new CustomEvent('companyProfileUpdated', { 
@@ -257,7 +307,7 @@ export function useProfile() {
         };
         
         setUserProfile(updatedProfile);
-        saveToStorage(`${USER_PROFILE_KEY}_${user.id}`, updatedProfile);
+        saveToStorageWithBackup(USER_PROFILE_KEY, user.id, user.email, updatedProfile);
 
         // Notify other components about the profile image update
         window.dispatchEvent(new CustomEvent('userProfileUpdated', { 
@@ -293,7 +343,7 @@ export function useProfile() {
         };
         
         setCompanyProfile(updatedProfile);
-        saveToStorage(`${COMPANY_PROFILE_KEY}_${user.id}`, updatedProfile);
+        saveToStorageWithBackup(COMPANY_PROFILE_KEY, user.id, user.email, updatedProfile);
 
         // Notify other components about the company logo update
         window.dispatchEvent(new CustomEvent('companyProfileUpdated', { 

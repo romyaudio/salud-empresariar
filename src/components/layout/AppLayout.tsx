@@ -19,6 +19,7 @@ import { useNetworkStatus } from '@/hooks/useNetworkStatus';
 import { ToastContainer } from '@/components/ui/Toast';
 import { useToast } from '@/hooks/useToast';
 import { useProfile } from '@/hooks/useProfile';
+import { ProfileDebug } from '@/components/debug/ProfileDebug';
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -178,6 +179,9 @@ export function AppLayout({ children }: AppLayoutProps) {
             toasts={toasts}
             onRemoveToast={removeToast}
           />
+          
+          {/* Profile Debug (development only) */}
+          {process.env.NODE_ENV === 'development' && <ProfileDebug />}
         </div>
       </OrientationHandler>
     </ErrorBoundary>
