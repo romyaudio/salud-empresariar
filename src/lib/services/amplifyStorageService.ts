@@ -58,7 +58,7 @@ export class AmplifyStorageService {
     });
   }
 
-  // Upload usando Amplify Storage
+  // Upload usando Amplify Storage con fallback
   static async uploadToAmplifyStorage(file: File, folder: string, userId: string): Promise<string> {
     try {
       console.log('Uploading to Amplify Storage:', { folder, userId, fileName: file.name });
@@ -78,30 +78,37 @@ export class AmplifyStorageService {
 
       console.log('Uploading file to Amplify Storage:', fileName);
 
-      // Upload usando Amplify Storage
-      const result = await uploadData({
-        key: fileName,
-        data: resizedFile,
-        options: {
-          contentType: resizedFile.type,
-          accessLevel: 'guest' // Permite acceso público de lectura
-        }
-      }).result;
+      try {
+        // Intentar upload usando Amplify Storage
+        const result = await uploadData({
+          key: fileName,
+          data: resizedFile,
+          options: {
+            contentType: resizedFile.type,
+            accessLevel: 'guest' // Permite acceso público de lectura
+          }
+        }).result;
 
-      console.log('Upload successful:', result.key);
+        console.log('Upload successful:', result.key);
 
-      // Obtener URL pública
-      const urlResult = await getUrl({
-        key: result.key,
-        options: {
-          accessLevel: 'guest'
-        }
-      });
+        // Obtener URL pública
+        const urlResult = await getUrl({
+          key: result.key,
+          options: {
+            accessLevel: 'guest'
+          }
+        });
 
-      const publicUrl = urlResult.url.toString();
-      console.log('Public URL generated:', publicUrl);
-      
-      return publicUrl;
+        const publicUrl = urlResult.url.toString();
+        console.log('Public URL generated:', publicUrl);
+        
+        return publicUrl;
+      } catch (amplifyError) {
+        console.warn('Amplify Storage not configured, falling back to local storage:', amplifyError);
+        
+        // Fallback a almacenamiento local temporal
+        return this.uploadImageLocal(resizedFile, userId, folder);
+      }
     } catch (error) {
       console.error('Error uploading to Amplify Storage:', error);
       throw new Error(`Error al subir la imagen: ${error instanceof Error ? error.message : 'Error desconocido'}`);
