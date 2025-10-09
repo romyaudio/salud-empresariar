@@ -11,7 +11,7 @@ interface ToastProps {
   onClose: () => void;
 }
 
-export function Toast({ message, type, duration = 3000, onClose }: ToastProps) {
+export function Toast({ message, type, duration = 4000, onClose }: ToastProps) {
   const [isVisible, setIsVisible] = useState(true);
 
   useEffect(() => {
@@ -26,14 +26,14 @@ export function Toast({ message, type, duration = 3000, onClose }: ToastProps) {
   const getTypeStyles = () => {
     switch (type) {
       case 'success':
-        return 'bg-green-500 text-white';
+        return 'bg-green-500 text-white border-l-4 border-green-600 shadow-lg';
       case 'error':
-        return 'bg-red-500 text-white';
+        return 'bg-red-500 text-white border-l-4 border-red-600 shadow-lg';
       case 'warning':
-        return 'bg-yellow-500 text-white';
+        return 'bg-yellow-500 text-white border-l-4 border-yellow-600 shadow-lg';
       case 'info':
       default:
-        return 'bg-blue-500 text-white';
+        return 'bg-blue-500 text-white border-l-4 border-blue-600 shadow-lg';
     }
   };
 
@@ -53,8 +53,8 @@ export function Toast({ message, type, duration = 3000, onClose }: ToastProps) {
 
   return (
     <div
-      className={`fixed top-4 right-4 z-50 max-w-sm w-full transform transition-all duration-300 ${
-        isVisible ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'
+      className={`fixed top-4 left-1/2 transform -translate-x-1/2 z-50 max-w-sm w-full mx-4 transition-all duration-500 ease-out ${
+        isVisible ? 'translate-y-0 opacity-100 scale-100' : '-translate-y-full opacity-0 scale-95'
       }`}
     >
       <div className={`rounded-lg shadow-lg p-4 ${getTypeStyles()}`}>
@@ -89,11 +89,15 @@ interface ToastContainerProps {
 
 export function ToastContainer({ toasts, onRemoveToast }: ToastContainerProps) {
   return (
-    <div className="fixed top-4 right-4 z-50 space-y-2">
+    <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 w-full max-w-sm mx-4">
       {toasts.map((toast, index) => (
         <div
           key={toast.id}
-          style={{ transform: `translateY(${index * 60}px)` }}
+          className="mb-2"
+          style={{ 
+            transform: `translateY(${index * 70}px)`,
+            zIndex: 50 - index // Ensure newer toasts appear on top
+          }}
         >
           <Toast
             message={toast.message}

@@ -3,7 +3,7 @@ import { TransactionModel } from '@/lib/models/Transaction';
 import { CategoryModel } from '@/lib/models/Category';
 import { BudgetModel } from '@/lib/models/Budget';
 import { GraphQLService } from './graphqlService';
-import { isDemoMode } from '../amplify';
+import { loadSampleDataForUser } from '../data/sampleData';
 
 // Local storage keys
 const STORAGE_KEYS = {
@@ -40,12 +40,18 @@ export class DataService {
   // Transaction methods
   static async getTransactions(userId: string, filters?: TransactionFilters): Promise<ApiResponse<Transaction[]>> {
     try {
+      console.log('🔍 Getting transactions from GraphQL for user:', userId);
+      
+      // Try GraphQL first
       const result = await GraphQLService.getTransactions();
-      if (!result.success || !result.data) {
+      if (!result.success) {
+        console.error('❌ GraphQL failed:', result.error);
         return result;
       }
-
-      let transactions = result.data;
+      
+      let transactions = result.data || [];
+      
+      // No sample data loading - use real database only
 
       // Apply filters
       if (filters) {
@@ -93,7 +99,8 @@ export class DataService {
 
   static async createTransaction(transaction: Transaction): Promise<ApiResponse<Transaction>> {
     try {
-      const transactionData: TransactionFormData = {
+      console.log('🔍 Creating transaction via GraphQL');
+      const transactionData = {
         type: transaction.type,
         amount: transaction.amount.toString(),
         description: transaction.description,
@@ -113,33 +120,19 @@ export class DataService {
 
   static async updateTransaction(id: string, updates: Partial<Transaction>): Promise<ApiResponse<Transaction>> {
     try {
-      // Use GraphQL service if not in demo mode
-      if (!isDemoMode()) {
-        const transactionData: Partial<TransactionFormData> = {};
-        if (updates.type) transactionData.type = updates.type;
-        if (updates.amount) transactionData.amount = updates.amount.toString();
-        if (updates.description) transactionData.description = updates.description;
-        if (updates.category) transactionData.category = updates.category;
-        if (updates.subcategory) transactionData.subcategory = updates.subcategory;
-        if (updates.date) transactionData.date = updates.date;
-        if (updates.paymentMethod) transactionData.paymentMethod = updates.paymentMethod;
-        if (updates.reference) transactionData.reference = updates.reference;
-        if (updates.tags) transactionData.tags = updates.tags;
-        
-        return await GraphQLService.updateTransaction(id, transactionData);
-      }
-
-      const transactions = this.getFromStorage<Transaction>(STORAGE_KEYS.TRANSACTIONS);
-      const index = transactions.findIndex(t => t.id === id);
+      console.log('🔍 Updating transaction via GraphQL');
+      const transactionData: any = {};
+      if (updates.type) transactionData.type = updates.type;
+      if (updates.amount) transactionData.amount = updates.amount.toString();
+      if (updates.description) transactionData.description = updates.description;
+      if (updates.category) transactionData.category = updates.category;
+      if (updates.subcategory) transactionData.subcategory = updates.subcategory;
+      if (updates.date) transactionData.date = updates.date;
+      if (updates.paymentMethod) transactionData.paymentMethod = updates.paymentMethod;
+      if (updates.reference) transactionData.reference = updates.reference;
+      if (updates.tags) transactionData.tags = updates.tags;
       
-      if (index === -1) {
-        return { success: false, error: 'Transacción no encontrada' };
-      }
-
-      transactions[index] = { ...transactions[index], ...updates, updatedAt: new Date().toISOString() };
-      this.saveToStorage(STORAGE_KEYS.TRANSACTIONS, transactions);
-
-      return { success: true, data: transactions[index] };
+      return await GraphQLService.updateTransaction(id, transactionData);
     } catch (error) {
       console.error('Error updating transaction:', error);
       return { success: false, error: 'Error al actualizar la transacción' };
@@ -148,20 +141,8 @@ export class DataService {
 
   static async deleteTransaction(id: string): Promise<ApiResponse<boolean>> {
     try {
-      // Use GraphQL service if not in demo mode
-      if (!isDemoMode()) {
-        return await GraphQLService.deleteTransaction(id);
-      }
-
-      const transactions = this.getFromStorage<Transaction>(STORAGE_KEYS.TRANSACTIONS);
-      const filteredTransactions = transactions.filter(t => t.id !== id);
-      
-      if (transactions.length === filteredTransactions.length) {
-        return { success: false, error: 'Transacción no encontrada' };
-      }
-
-      this.saveToStorage(STORAGE_KEYS.TRANSACTIONS, filteredTransactions);
-      return { success: true, data: true };
+      console.log('🔍 Deleting transaction via GraphQL');
+      return await GraphQLService.deleteTransaction(id);
     } catch (error) {
       console.error('Error deleting transaction:', error);
       return { success: false, error: 'Error al eliminar la transacción' };
@@ -171,15 +152,27 @@ export class DataService {
   // Category methods
   static async getCategories(userId: string): Promise<ApiResponse<Category[]>> {
     try {
+      // Always use localStorage for categories for now (simpler and more reliable)
       let categories = this.getFromStorage<Category>(STORAGE_KEYS.CATEGORIES)
         .filter(c => c.userId === userId);
 
-      // If no categories exist, create default ones
+      // If no categories exist, load sample data (includes categories) - but only once per user
       if (categories.length === 0) {
-        categories = CategoryModel.createDefaultCategories(userId);
-        const allCategories = this.getFromStorage<Category>(STORAGE_KEYS.CATEGORIES);
-        allCategories.push(...categories);
-        this.saveToStorage(STORAGE_KEYS.CATEGORIES, allCategories);
+        const hasLoadedSampleData = localStorage.getItem(`sample_data_loaded_${userId}`) === 'true';
+        if (!hasLoadedSampleData) {
+          console.log('🔍 Loading sample data for categories for user:', userId);
+          loadSampleDataForUser(userId);
+          localStorage.setItem(`sample_data_loaded_${userId}`, 'true');
+          categories = this.getFromStorage<Category>(STORAGE_KEYS.CATEGORIES)
+            .filter(c => c.userId === userId);
+        } else {
+          // If sample data was already loaded but no categories found, create default ones
+          console.log('🔍 Creating default categories for user:', userId);
+          categories = CategoryModel.createDefaultCategories(userId);
+          const allCategories = this.getFromStorage<Category>(STORAGE_KEYS.CATEGORIES);
+          allCategories.push(...categories);
+          this.saveToStorage(STORAGE_KEYS.CATEGORIES, allCategories);
+        }
       }
 
       // Sort by type and name
@@ -285,6 +278,7 @@ export class DataService {
   // Budget methods
   static async getBudgets(userId: string): Promise<ApiResponse<Budget[]>> {
     try {
+      // Always use localStorage for budgets for now (simpler and more reliable)
       const budgets = this.getFromStorage<Budget>(STORAGE_KEYS.BUDGETS)
         .filter(b => b.userId === userId);
 
@@ -368,34 +362,68 @@ export class DataService {
   // Dashboard data
   static async getDashboardData(userId: string): Promise<ApiResponse<any>> {
     try {
+      console.log('🔍 DataService.getDashboardData - Starting for user:', userId);
+      
       const transactionsResponse = await this.getTransactions(userId);
+      console.log('🔍 Transactions response:', transactionsResponse.success ? 'Success' : 'Failed', transactionsResponse.error);
+      
       const categoriesResponse = await this.getCategories(userId);
+      console.log('🔍 Categories response:', categoriesResponse.success ? 'Success' : 'Failed', categoriesResponse.error);
+      
       const budgetsResponse = await this.getBudgets(userId);
+      console.log('🔍 Budgets response:', budgetsResponse.success ? 'Success' : 'Failed', budgetsResponse.error);
 
-      if (!transactionsResponse.success || !categoriesResponse.success || !budgetsResponse.success) {
-        return { success: false, error: 'Error al obtener los datos del dashboard' };
+      if (!transactionsResponse.success) {
+        console.error('❌ Failed to get transactions:', transactionsResponse.error);
+        return { success: false, error: `Error al obtener transacciones: ${transactionsResponse.error}` };
+      }
+      
+      if (!categoriesResponse.success) {
+        console.error('❌ Failed to get categories:', categoriesResponse.error);
+        return { success: false, error: `Error al obtener categorías: ${categoriesResponse.error}` };
+      }
+      
+      if (!budgetsResponse.success) {
+        console.error('❌ Failed to get budgets:', budgetsResponse.error);
+        return { success: false, error: `Error al obtener presupuestos: ${budgetsResponse.error}` };
       }
 
-      const transactions = transactionsResponse.data!;
-      const categories = categoriesResponse.data!;
-      const budgets = budgetsResponse.data!;
+      const transactions = transactionsResponse.data || [];
+      const categories = categoriesResponse.data || [];
+      const budgets = budgetsResponse.data || [];
 
-      // Calculate totals
-      const totals = TransactionModel.calculateTotals(transactions);
+      console.log('🔍 Dashboard data counts:', {
+        transactions: transactions.length,
+        categories: categories.length,
+        budgets: budgets.length
+      });
+
+      // Calculate totals (handle empty transactions)
+      const totals = transactions.length > 0 
+        ? TransactionModel.calculateTotals(transactions)
+        : { income: 0, expenses: 0, balance: 0 };
+
+      console.log('🔍 Calculated totals:', totals);
 
       // Get recent transactions (last 10)
       const recentTransactions = transactions.slice(0, 10);
 
-      // Calculate monthly data (last 12 months)
-      const monthlyData = this.calculateMonthlyData(transactions);
+      // Calculate monthly data (last 12 months) - handle empty transactions
+      const monthlyData = transactions.length > 0 
+        ? this.calculateMonthlyData(transactions)
+        : [];
 
-      // Calculate category breakdown
-      const categoryBreakdown = this.calculateCategoryBreakdown(transactions, categories);
+      // Calculate category breakdown - handle empty transactions
+      const categoryBreakdown = transactions.length > 0 
+        ? this.calculateCategoryBreakdown(transactions, categories)
+        : [];
 
-      // Calculate budget status
-      const budgetStatus = BudgetModel.getActiveBudgets(budgets).map(budget => 
-        BudgetModel.calculateStatus(budget)
-      );
+      // Calculate budget status - handle empty budgets
+      const budgetStatus = budgets.length > 0 
+        ? BudgetModel.getActiveBudgets(budgets).map(budget => 
+            BudgetModel.calculateStatus(budget)
+          )
+        : [];
 
       const dashboardData = {
         totalIncome: totals.income,
@@ -407,14 +435,37 @@ export class DataService {
         budgetStatus,
       };
 
+      console.log('✅ Dashboard data created successfully:', dashboardData);
       return { success: true, data: dashboardData };
     } catch (error) {
-      console.error('Error getting dashboard data:', error);
-      return { success: false, error: 'Error al obtener los datos del dashboard' };
+      console.error('❌ DataService.getDashboardData - Catch error:', error);
+      console.error('❌ Error details:', {
+        name: error instanceof Error ? error.name : 'Unknown',
+        message: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : 'No stack trace'
+      });
+      
+      // Return a safe fallback dashboard data instead of failing
+      const fallbackDashboardData = {
+        totalIncome: 0,
+        totalExpenses: 0,
+        balance: 0,
+        monthlyData: [],
+        categoryBreakdown: [],
+        recentTransactions: [],
+        budgetStatus: [],
+      };
+      
+      console.log('🔄 Returning fallback dashboard data');
+      return { success: true, data: fallbackDashboardData };
     }
   }
 
   private static calculateMonthlyData(transactions: Transaction[]) {
+    if (!transactions || transactions.length === 0) {
+      return [];
+    }
+
     const monthlyMap = new Map();
     
     transactions.forEach(transaction => {
@@ -448,6 +499,10 @@ export class DataService {
   }
 
   private static calculateCategoryBreakdown(transactions: Transaction[], categories: Category[]) {
+    if (!transactions || transactions.length === 0) {
+      return [];
+    }
+
     const categoryMap = new Map();
     const totalAmount = transactions.reduce((sum, t) => sum + t.amount, 0);
     
@@ -487,6 +542,40 @@ export class DataService {
     Object.values(STORAGE_KEYS).forEach(key => {
       localStorage.removeItem(key);
     });
+    
+    // Also clear sample data flags
+    const keys = Object.keys(localStorage);
+    keys.forEach(key => {
+      if (key.startsWith('sample_data_loaded_')) {
+        localStorage.removeItem(key);
+      }
+    });
+  }
+
+  static async clearUserData(userId: string): Promise<void> {
+    if (typeof window === 'undefined') return;
+    
+    console.log('🗑️ Clearing data for user:', userId);
+    
+    // Remove user's transactions
+    const transactions = this.getFromStorage<Transaction>(STORAGE_KEYS.TRANSACTIONS);
+    const filteredTransactions = transactions.filter(t => t.userId !== userId);
+    this.saveToStorage(STORAGE_KEYS.TRANSACTIONS, filteredTransactions);
+    
+    // Remove user's categories
+    const categories = this.getFromStorage<Category>(STORAGE_KEYS.CATEGORIES);
+    const filteredCategories = categories.filter(c => c.userId !== userId);
+    this.saveToStorage(STORAGE_KEYS.CATEGORIES, filteredCategories);
+    
+    // Remove user's budgets
+    const budgets = this.getFromStorage<Budget>(STORAGE_KEYS.BUDGETS);
+    const filteredBudgets = budgets.filter(b => b.userId !== userId);
+    this.saveToStorage(STORAGE_KEYS.BUDGETS, filteredBudgets);
+    
+    // Remove sample data flag for this user
+    localStorage.removeItem(`sample_data_loaded_${userId}`);
+    
+    console.log('✅ User data cleared for:', userId);
   }
 
   static async exportData(userId: string): Promise<ApiResponse<any>> {

@@ -88,3 +88,70 @@ type CategoryBreakdown {
   color: String!
   transactionCount: Int!
 }
+
+# User Profile Types
+type UserProfile @model @auth(rules: [{ allow: owner }]) {
+  id: ID!
+  firstName: String!
+  lastName: String!
+  phone: String
+  position: String
+  profileImage: String
+  bio: String
+  company: CompanyProfile @hasOne
+  preferences: UserPreferences
+  owner: String @auth(rules: [{ allow: owner, operations: [read, delete] }])
+}
+
+type CompanyProfile @model @auth(rules: [{ allow: owner }]) {
+  id: ID!
+  companyName: String!
+  taxId: String # RUC/NIT
+  address: String
+  city: String
+  country: String
+  phone: String
+  email: AWSEmail
+  website: AWSURL
+  logo: String
+  description: String
+  industry: String
+  foundedYear: Int
+  userProfile: UserProfile @belongsTo
+  owner: String @auth(rules: [{ allow: owner, operations: [read, delete] }])
+}
+
+type UserPreferences {
+  currency: String!
+  dateFormat: String!
+  language: String!
+  timezone: String!
+  defaultCategories: [String]!
+  notifications: NotificationSettings!
+}
+
+type NotificationSettings {
+  emailNotifications: Boolean!
+  pushNotifications: Boolean!
+  budgetAlerts: Boolean!
+  weeklyReports: Boolean!
+  monthlyReports: Boolean!
+}
+
+# Input types for mutations
+input UserPreferencesInput {
+  currency: String!
+  dateFormat: String!
+  language: String!
+  timezone: String!
+  defaultCategories: [String]!
+  notifications: NotificationSettingsInput!
+}
+
+input NotificationSettingsInput {
+  emailNotifications: Boolean!
+  pushNotifications: Boolean!
+  budgetAlerts: Boolean!
+  weeklyReports: Boolean!
+  monthlyReports: Boolean!
+}

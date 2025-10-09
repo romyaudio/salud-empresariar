@@ -74,6 +74,19 @@ Esta aplicación de presupuesto está diseñada para pequeñas empresas que nece
 
 ### Requisito 7
 
+**Historia de Usuario:** Como propietario de una pequeña empresa, quiero gestionar mi perfil personal y el perfil de mi empresa de manera profesional, para tener una identidad empresarial completa en la aplicación.
+
+#### Criterios de Aceptación
+
+1. CUANDO el usuario acceda a su perfil ENTONCES el sistema DEBERÁ mostrar una interfaz profesional dividida en información personal e información empresarial
+2. CUANDO el usuario edite su información personal ENTONCES el sistema DEBERÁ permitir actualizar nombre, email, teléfono, cargo y foto de perfil
+3. CUANDO el usuario edite la información empresarial ENTONCES el sistema DEBERÁ permitir actualizar nombre de empresa, RUC/NIT, dirección, teléfono, email corporativo, logo y descripción
+4. CUANDO el usuario guarde cambios en el perfil ENTONCES el sistema DEBERÁ validar los datos y mostrar confirmación de actualización
+5. CUANDO el usuario suba una foto o logo ENTONCES el sistema DEBERÁ optimizar y almacenar las imágenes de forma segura
+6. CUANDO el usuario visualice el perfil ENTONCES el sistema DEBERÁ mostrar un diseño profesional y responsive
+
+### Requisito 8
+
 **Historia de Usuario:** Como desarrollador, quiero tener control total sobre el despliegue, para asegurar la calidad y estabilidad de cada versión.
 
 #### Criterios de Aceptación

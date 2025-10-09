@@ -36,27 +36,64 @@ export interface User {
   email: string;
   name: string;
   preferences: UserPreferences;
+  profile?: UserProfile;
   createdAt: string;
   updatedAt: string;
   lastLoginAt?: string;
 }
 
+export interface UserProfile {
+  id: string;
+  firstName: string;
+  lastName: string;
+  phone?: string | null;
+  position?: string | null;
+  profileImage?: string | null;
+  bio?: string | null;
+  company?: CompanyProfile;
+  preferences?: UserPreferences;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CompanyProfile {
+  id: string;
+  companyName: string;
+  taxId?: string | null; // RUC/NIT
+  address?: string | null;
+  city?: string | null;
+  country?: string | null;
+  phone?: string | null;
+  email?: string | null;
+  website?: string | null;
+  logo?: string | null;
+  description?: string | null;
+  industry?: string | null;
+  foundedYear?: number | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface UserPreferences {
   currency: string;
   dateFormat: 'DD/MM/YYYY' | 'MM/DD/YYYY' | 'YYYY-MM-DD';
+  language: string;
+  timezone: string;
   defaultCategories: string[];
   theme: 'light' | 'dark' | 'system';
-  notifications: {
-    email: boolean;
-    push: boolean;
-    dailySummary: boolean;
-    weeklyReport: boolean;
-    monthlyReport: boolean;
-  };
+  notifications: NotificationSettings;
   budgetAlerts: {
     enabled: boolean;
     threshold: number; // Percentage (e.g., 80 for 80%)
   };
+}
+
+export interface NotificationSettings {
+  emailNotifications: boolean;
+  pushNotifications: boolean;
+  budgetAlerts: boolean;
+  weeklyReports: boolean;
+  monthlyReports: boolean;
 }
 
 export interface Budget {
@@ -155,6 +192,30 @@ export interface BudgetFormData {
   amount: string;
   period: 'weekly' | 'monthly' | 'yearly';
   startDate: string;
+}
+
+export interface UserProfileFormData {
+  firstName: string;
+  lastName: string;
+  phone: string;
+  position: string;
+  bio: string;
+  profileImage: string;
+}
+
+export interface CompanyProfileFormData {
+  companyName: string;
+  taxId: string;
+  address: string;
+  city: string;
+  country: string;
+  phone: string;
+  email: string;
+  website: string;
+  description: string;
+  industry: string;
+  foundedYear: string;
+  logo: string;
 }
 
 // Filter and search types

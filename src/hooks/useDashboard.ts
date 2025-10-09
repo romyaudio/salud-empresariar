@@ -13,22 +13,31 @@ export function useDashboard() {
   const { user } = useAuthStore();
 
   const fetchDashboardData = async () => {
-    if (!user) return;
+    if (!user) {
+      console.log('🔍 useDashboard - No user found, skipping fetch');
+      return;
+    }
     
+    console.log('🔍 useDashboard - Starting fetch for user:', user.id);
     setLoading(true);
     setError(null);
     
     try {
       const response = await DataService.getDashboardData(user.id);
+      console.log('🔍 useDashboard - DataService response:', response);
       
       if (response.success && response.data) {
+        console.log('✅ useDashboard - Data loaded successfully');
         setDashboardData(response.data);
       } else {
-        setError(response.error || 'Error al cargar los datos del dashboard');
+        const errorMsg = response.error || 'Error al cargar los datos del dashboard';
+        console.error('❌ useDashboard - Service error:', errorMsg);
+        setError(errorMsg);
       }
     } catch (err) {
-      setError('Error al cargar los datos del dashboard');
-      console.error('Error fetching dashboard data:', err);
+      const errorMsg = 'Error al cargar los datos del dashboard';
+      console.error('❌ useDashboard - Catch error:', err);
+      setError(errorMsg);
     } finally {
       setLoading(false);
     }

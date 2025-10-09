@@ -1,16 +1,19 @@
 import type { Metadata, Viewport } from 'next'
 import { Inter } from 'next/font/google'
 import AuthProvider from '@/components/auth/AuthProvider'
-import ConnectionStatus from '@/components/debug/ConnectionStatus'
-import AuthDebug from '@/components/debug/AuthDebug'
 import './globals.css'
 
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Budget Tracker',
-  description: 'Aplicación de presupuesto para pequeñas empresas',
+  title: 'Salud Empresarial',
+  description: 'Aplicación de gestión financiera para pequeñas empresas',
   manifest: '/manifest.json',
+  icons: {
+    icon: '/logo.svg',
+    shortcut: '/logo.svg',
+    apple: '/logo.svg',
+  },
 }
 
 export const viewport: Viewport = {
@@ -18,7 +21,7 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 1,
   userScalable: false,
-  themeColor: '#3b82f6',
+  themeColor: '#4CAF50',
 }
 
 export default function RootLayout({
@@ -33,12 +36,7 @@ export default function RootLayout({
           <div className="min-h-screen bg-gray-50">
             {children}
           </div>
-          {process.env.NODE_ENV === 'development' && (
-            <>
-              <AuthDebug />
-              <ConnectionStatus showDetails={true} />
-            </>
-          )}
+
         </AuthProvider>
       </body>
     </html>

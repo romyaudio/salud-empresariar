@@ -215,8 +215,45 @@
     - Implementar tests para escenarios de fallo
     - _Requisitos: 5.3_
 
-- [ ] 10. Configurar testing y preparar para despliegue
-  - [x] 10.1 Configurar suite completa de testing
+- [ ] 10. Implementar perfil de usuario y empresa profesional
+  - [ ] 10.1 Crear modelos de datos para perfil de usuario y empresa
+    - Extender esquemas GraphQL para UserProfile y CompanyProfile
+    - Implementar interfaces TypeScript para perfiles
+    - Actualizar resolvers para operaciones CRUD de perfiles
+    - _Requisitos: 7.2, 7.3_
+  
+  - [ ] 10.2 Desarrollar componente UserProfile principal
+    - Crear interfaz profesional con secciones de usuario y empresa
+    - Implementar navegación por tabs entre información personal y empresarial
+    - Diseñar layout responsive y móvil-first
+    - _Requisitos: 7.1, 7.6_
+  
+  - [ ] 10.3 Implementar formularios de edición de perfil
+    - Crear ProfileForm para información personal (nombre, teléfono, cargo, bio)
+    - Desarrollar CompanyForm para información empresarial (nombre, RUC, dirección, etc.)
+    - Implementar validación en tiempo real y manejo de errores
+    - _Requisitos: 7.2, 7.3, 7.4_
+  
+  - [ ] 10.4 Crear sistema de carga de imágenes
+    - Implementar ImageUpload para fotos de perfil y logos
+    - Configurar optimización y redimensionamiento de imágenes
+    - Integrar con AWS S3 para almacenamiento seguro
+    - _Requisitos: 7.5_
+  
+  - [ ] 10.5 Integrar perfil con navegación principal
+    - Agregar enlace al perfil en la navegación móvil
+    - Mostrar información básica del usuario en el header
+    - Implementar página dedicada para el perfil (/profile)
+    - _Requisitos: 7.1, 7.6_
+  
+  - [ ]* 10.6 Escribir tests para funcionalidad de perfil
+    - Crear tests unitarios para componentes de perfil
+    - Implementar tests de integración para flujos de actualización
+    - Escribir tests para carga de imágenes
+    - _Requisitos: 7.1, 7.2, 7.3, 7.4, 7.5, 7.6_
+
+- [ ] 11. Configurar testing y preparar para despliegue
+  - [x] 11.1 Configurar suite completa de testing
 
 
 
@@ -228,14 +265,14 @@
 
 
   
-  - [x] 10.2 Preparar configuración de despliegue
+  - [x] 11.2 Preparar configuración de despliegue
 
 
     - Configurar amplify.yml para despliegue manual
     - Crear scripts de build y validación pre-despliegue
     - _Requisitos: 7.2, 7.3, 7.4_
   
-  - [x] 10.3 Crear documentación de despliegue
+  - [x] 11.3 Crear documentación de despliegue
 
 
     - Documentar proceso de despliegue manual paso a paso

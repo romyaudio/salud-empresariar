@@ -7,6 +7,8 @@ export interface User {
   email: string;
   name: string;
   emailVerified: boolean;
+  isNewUser?: boolean;
+  onboardingCompleted?: boolean;
 }
 
 interface AuthState {
@@ -20,6 +22,7 @@ interface AuthState {
   login: (user: User) => void;
   logout: () => Promise<void>;
   checkAuthState: () => Promise<void>;
+  completeOnboarding: () => void;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -75,6 +78,7 @@ export const useAuthStore = create<AuthState>()(
               email: currentUser.signInDetails?.loginId || '',
               name: currentUser.username,
               emailVerified: true, // Amplify handles verification
+              onboardingCompleted: localStorage.getItem(`onboarding_${currentUser.userId}`) === 'completed'
             };
             
             set({ 
@@ -95,6 +99,19 @@ export const useAuthStore = create<AuthState>()(
             user: null, 
             isAuthenticated: false, 
             isLoading: false 
+          });
+        }
+      },
+
+      completeOnboarding: () => {
+        const { user } = get();
+        if (user) {
+          localStorage.setItem(`onboarding_${user.id}`, 'completed');
+          set({
+            user: {
+              ...user,
+              onboardingCompleted: true
+            }
           });
         }
       },

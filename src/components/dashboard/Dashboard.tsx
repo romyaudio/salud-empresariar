@@ -9,6 +9,7 @@ import { CategoryBreakdownChart } from '@/components/charts/CategoryBreakdownCha
 import { TransactionList } from '@/components/transactions/TransactionList';
 import { ResponsiveContainer, ResponsiveGrid, ResponsiveStack } from '@/components/layout/ResponsiveContainer';
 import { ExportButton } from '@/components/export/ExportButton';
+import { DatabaseConnectionDebug } from '@/components/debug/DatabaseConnectionDebug';
 
 interface DashboardProps {
   className?: string;
@@ -44,15 +45,43 @@ export function Dashboard({ className = '' }: DashboardProps) {
 
   if (error) {
     return (
-      <div className={`bg-red-50 border border-red-200 rounded-lg p-4 ${className}`}>
-        <h3 className="text-red-800 font-medium mb-2">Error al cargar el dashboard</h3>
-        <p className="text-red-600 text-sm mb-3">{error}</p>
-        <button
-          onClick={refetch}
-          className="text-red-600 hover:text-red-700 text-sm underline"
-        >
-          Intentar de nuevo
-        </button>
+      <div className={`bg-red-50 border border-red-200 rounded-lg p-6 ${className}`}>
+        <div className="flex items-start">
+          <div className="flex-shrink-0">
+            <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+            </svg>
+          </div>
+          <div className="ml-3 flex-1">
+            <h3 className="text-red-800 font-medium mb-2">Error al cargar el dashboard</h3>
+            <p className="text-red-600 text-sm mb-4">{error}</p>
+            
+            <div className="bg-red-100 border border-red-200 rounded p-3 mb-4">
+              <h4 className="text-red-800 font-medium text-sm mb-2">Posibles soluciones:</h4>
+              <ul className="text-red-700 text-sm space-y-1">
+                <li>• Verifica tu conexión a internet</li>
+                <li>• Revisa la configuración de AWS Amplify</li>
+                <li>• Comprueba las variables de entorno</li>
+                <li>• Usa el botón Debug para más información</li>
+              </ul>
+            </div>
+            
+            <div className="flex space-x-3">
+              <button
+                onClick={refetch}
+                className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+              >
+                Intentar de nuevo
+              </button>
+              <button
+                onClick={() => window.location.href = '/profile'}
+                className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+              >
+                Ir al perfil
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
@@ -63,6 +92,12 @@ export function Dashboard({ className = '' }: DashboardProps) {
     balance: 0,
     recentTransactions: []
   };
+
+  // Check if this is a new user with no data
+  const isNewUser = dashboardData && 
+    totalIncome === 0 && 
+    totalExpenses === 0 && 
+    recentTransactions.length === 0;
 
   return (
     <ResponsiveContainer className={`space-y-6 ${className}`}>
@@ -175,8 +210,47 @@ export function Dashboard({ className = '' }: DashboardProps) {
         </div>
       </ResponsiveGrid>
 
+      {/* Welcome Message for New Users */}
+      {isNewUser && (
+        <div className={`bg-blue-50 border border-blue-200 rounded-lg ${isMobile ? 'p-4' : 'p-6'}`}>
+          <div className="text-center">
+            <div className={`${isMobile ? 'w-16 h-16' : 'w-20 h-20'} bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4`}>
+              <span className={isMobile ? 'text-2xl' : 'text-3xl'}>🎉</span>
+            </div>
+            <h3 className={`font-semibold text-blue-900 mb-2 ${isMobile ? 'text-lg' : 'text-xl'}`}>
+              ¡Bienvenido a Budget Tracker!
+            </h3>
+            <p className="text-blue-700 text-sm mb-4">
+              Comienza registrando tu primera transacción para ver tus datos financieros aquí.
+            </p>
+            <ResponsiveGrid 
+              cols={{ xs: 2, sm: 2 }}
+              gap={3}
+              className="max-w-sm mx-auto"
+            >
+              <button
+                onClick={() => window.location.href = '/income'}
+                className={`bg-green-500 hover:bg-green-600 text-white font-medium rounded-lg transition-colors ${
+                  isMobile ? 'py-2 px-3 text-sm' : 'py-3 px-4'
+                }`}
+              >
+                💰 Agregar Ingreso
+              </button>
+              <button
+                onClick={() => window.location.href = '/expenses'}
+                className={`bg-red-500 hover:bg-red-600 text-white font-medium rounded-lg transition-colors ${
+                  isMobile ? 'py-2 px-3 text-sm' : 'py-3 px-4'
+                }`}
+              >
+                💸 Agregar Gasto
+              </button>
+            </ResponsiveGrid>
+          </div>
+        </div>
+      )}
+
       {/* Charts Section */}
-      {dashboardData && (dashboardData.monthlyData.length > 0 || dashboardData.categoryBreakdown.length > 0) && (
+      {dashboardData && !isNewUser && (dashboardData.monthlyData.length > 0 || dashboardData.categoryBreakdown.length > 0) && (
         <ResponsiveGrid 
           cols={{ xs: 1, lg: 2 }}
           gap={6}
@@ -245,6 +319,9 @@ export function Dashboard({ className = '' }: DashboardProps) {
           </button>
         </ResponsiveGrid>
       </div>
+      
+      {/* Database Connection Debug - Remove in production */}
+      <DatabaseConnectionDebug />
     </ResponsiveContainer>
   );
 }

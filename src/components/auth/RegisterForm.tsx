@@ -2,10 +2,11 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { signUp, confirmSignUp } from 'aws-amplify/auth';
+import { signUp, confirmSignUp, signIn, resendSignUpCode } from 'aws-amplify/auth';
 import { useAuthStore } from '@/store/authStore';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
+import PasswordInput from '@/components/ui/PasswordInput';
 
 interface RegisterFormProps {
   onToggleMode: () => void;
@@ -65,7 +66,7 @@ export default function RegisterForm({ onToggleMode }: RegisterFormProps) {
     }
 
     try {
-      const { isSignUpComplete, userId, nextStep } = await signUp({
+      const { isSignUpComplete, nextStep } = await signUp({
         username: formData.email,
         password: formData.password,
         options: {
@@ -118,33 +119,72 @@ export default function RegisterForm({ onToggleMode }: RegisterFormProps) {
       if (isSignUpComplete) {
         setSuccess('¡Email verificado! Iniciando sesión automáticamente...');
         
-        // Auto-login después del registro exitoso
-        const user = {
-          id: formData.email,
-          email: formData.email,
-          name: formData.name || formData.email.split('@')[0],
-          emailVerified: true,
-        };
-        
-        login(user);
-        
-        // Redirigir al dashboard
-        setTimeout(() => {
-          router.push('/');
-        }, 1500);
+        try {
+          // Sign in the user after successful verification
+          const { isSignedIn } = await signIn({
+            username: formData.email,
+            password: formData.password,
+          });
+
+          if (isSignedIn) {
+            // Get the actual user from Amplify after successful sign in
+            const { getCurrentUser } = await import('aws-amplify/auth');
+            const currentUser = await getCurrentUser();
+            
+            const user = {
+              id: currentUser.userId, // Use the real Amplify user ID
+              email: formData.email,
+              name: formData.name || formData.email.split('@')[0],
+              emailVerified: true,
+              isNewUser: true,
+              onboardingCompleted: false,
+            };
+            
+            login(user);
+            
+            // Redirigir al onboarding para usuarios nuevos
+            setTimeout(() => {
+              router.push('/onboarding');
+            }, 1500);
+          } else {
+            setError('Error al iniciar sesión automáticamente. Por favor, inicia sesión manualmente.');
+            setTimeout(() => onToggleMode(), 2000);
+          }
+        } catch (signInError: any) {
+          console.error('Error during auto sign-in:', signInError);
+          setError('Verificación exitosa. Por favor, inicia sesión manualmente.');
+          setTimeout(() => onToggleMode(), 2000);
+        }
       }
     } catch (err: any) {
       console.error('Error confirming sign up:', err);
+      console.error('Error details:', {
+        name: err.name,
+        message: err.message,
+        code: err.code
+      });
       
       switch (err.name) {
         case 'CodeMismatchException':
-          setError('Código de verificación incorrecto');
+          setError('Código de verificación incorrecto. Verifica que hayas ingresado el código correcto.');
           break;
         case 'ExpiredCodeException':
           setError('El código ha expirado. Solicita uno nuevo.');
           break;
+        case 'NotAuthorizedException':
+          setError('Código inválido o expirado. Verifica el código o solicita uno nuevo.');
+          break;
+        case 'UserNotFoundException':
+          setError('Usuario no encontrado. Intenta registrarte de nuevo.');
+          break;
+        case 'InvalidParameterException':
+          setError('Código inválido. Debe ser un código de 6 dígitos.');
+          break;
+        case 'TooManyFailedAttemptsException':
+          setError('Demasiados intentos fallidos. Espera un momento antes de intentar de nuevo.');
+          break;
         default:
-          setError('Error al verificar el código. Inténtalo de nuevo.');
+          setError(`Error al verificar el código: ${err.message || 'Error desconocido'}. Revisa la consola para más detalles.`);
       }
     } finally {
       setIsLoading(false);
@@ -155,8 +195,12 @@ export default function RegisterForm({ onToggleMode }: RegisterFormProps) {
     return (
       <div className="w-full max-w-md mx-auto">
         <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-primary-500 rounded-full flex items-center justify-center mx-auto mb-4">
-            <span className="text-2xl text-white">📧</span>
+          <div className="w-16 h-16 flex items-center justify-center mx-auto mb-4">
+            <img 
+              src="/logo.svg" 
+              alt="Salud Empresarial Logo" 
+              className="w-12 h-12 object-contain"
+            />
           </div>
           <h1 className="text-2xl font-bold text-gray-900 mb-2">
             Verificar Email
@@ -197,7 +241,26 @@ export default function RegisterForm({ onToggleMode }: RegisterFormProps) {
           </Button>
         </form>
 
-        <div className="mt-6 text-center">
+        <div className="mt-6 text-center space-y-2">
+          <button
+            onClick={async () => {
+              try {
+                setIsLoading(true);
+                await resendSignUpCode({ username: formData.email });
+                setSuccess('Código reenviado a tu email.');
+                setError('');
+              } catch (err: any) {
+                console.error('Error resending code:', err);
+                setError('Error al reenviar el código. Inténtalo de nuevo.');
+              } finally {
+                setIsLoading(false);
+              }
+            }}
+            disabled={isLoading}
+            className="text-blue-600 hover:text-blue-700 font-medium text-sm block w-full"
+          >
+            🔄 Reenviar código
+          </button>
           <button
             onClick={() => setShowVerification(false)}
             className="text-primary-600 hover:text-primary-700 font-medium text-sm"
@@ -212,14 +275,18 @@ export default function RegisterForm({ onToggleMode }: RegisterFormProps) {
   return (
     <div className="w-full max-w-md mx-auto">
       <div className="text-center mb-8">
-        <div className="w-16 h-16 bg-primary-500 rounded-full flex items-center justify-center mx-auto mb-4">
-          <span className="text-2xl text-white">👤</span>
+        <div className="w-16 h-16 flex items-center justify-center mx-auto mb-4">
+          <img 
+            src="/logo.svg" 
+            alt="Salud Empresarial Logo" 
+            className="w-12 h-12 object-contain"
+          />
         </div>
         <h1 className="text-2xl font-bold text-gray-900 mb-2">
           Crear Cuenta
         </h1>
         <p className="text-gray-600 text-sm">
-          Regístrate para comenzar a usar Budget Tracker
+          Regístrate para comenzar a usar Salud Empresarial
         </p>
       </div>
 
@@ -244,9 +311,8 @@ export default function RegisterForm({ onToggleMode }: RegisterFormProps) {
           required
         />
 
-        <Input
+        <PasswordInput
           label="Contraseña"
-          type="password"
           name="password"
           value={formData.password}
           onChange={handleInputChange}
@@ -255,9 +321,8 @@ export default function RegisterForm({ onToggleMode }: RegisterFormProps) {
           required
         />
 
-        <Input
+        <PasswordInput
           label="Confirmar Contraseña"
-          type="password"
           name="confirmPassword"
           value={formData.confirmPassword}
           onChange={handleInputChange}

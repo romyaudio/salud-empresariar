@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { useAuthStore } from '@/store/authStore';
 
 interface ProtectedRouteProps {
@@ -9,14 +9,28 @@ interface ProtectedRouteProps {
 }
 
 export default function ProtectedRoute({ children }: ProtectedRouteProps) {
-  const { isAuthenticated, isLoading } = useAuthStore();
+  const { user, isAuthenticated, isLoading } = useAuthStore();
   const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
       router.push('/auth');
+      return;
     }
-  }, [isAuthenticated, isLoading, router]);
+
+    // Check if user needs onboarding (but not if they're already on onboarding page)
+    if (user && isAuthenticated && !user.onboardingCompleted && pathname !== '/onboarding') {
+      router.push('/onboarding');
+      return;
+    }
+
+    // If user completed onboarding but is on onboarding page, redirect to dashboard
+    if (user && isAuthenticated && user.onboardingCompleted && pathname === '/onboarding') {
+      router.push('/');
+      return;
+    }
+  }, [user, isAuthenticated, isLoading, router, pathname]);
 
   if (isLoading) {
     return (
@@ -31,6 +45,11 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
 
   if (!isAuthenticated) {
     return null; // Will redirect to auth page
+  }
+
+  // If user needs onboarding and not on onboarding page, don't render content
+  if (user && !user.onboardingCompleted && pathname !== '/onboarding') {
+    return null; // Will redirect to onboarding
   }
 
   return <>{children}</>;

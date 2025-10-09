@@ -1,23 +1,23 @@
 {
-  "name": "Budget Tracker",
-  "short_name": "Budget Tracker",
-  "description": "Aplicación de presupuesto para pequeñas empresas",
+  "name": "Salud Empresarial",
+  "short_name": "Salud Empresarial",
+  "description": "Aplicación de gestión financiera para pequeñas empresas",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#f9fafb",
-  "theme_color": "#3b82f6",
+  "theme_color": "#4CAF50",
   "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "/icon-192x192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "maskable any"
+      "src": "/logo.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
     },
     {
-      "src": "/icon-512x512.png",
+      "src": "/logo.svg",
       "sizes": "512x512",
-      "type": "image/png",
+      "type": "image/svg+xml",
       "purpose": "maskable any"
     }
   ]

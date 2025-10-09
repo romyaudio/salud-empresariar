@@ -309,3 +309,251 @@ export const GET_BUDGETS = `
     }
   }
 `;
+
+// User Profile Mutations
+export const CREATE_USER_PROFILE = `
+  mutation CreateUserProfile(
+    $firstName: String!
+    $lastName: String!
+    $phone: String
+    $position: String
+    $profileImage: String
+    $bio: String
+    $preferences: UserPreferencesInput
+  ) {
+    createUserProfile(input: {
+      firstName: $firstName
+      lastName: $lastName
+      phone: $phone
+      position: $position
+      profileImage: $profileImage
+      bio: $bio
+      preferences: $preferences
+    }) {
+      id
+      firstName
+      lastName
+      phone
+      position
+      profileImage
+      bio
+      preferences {
+        currency
+        dateFormat
+        language
+        timezone
+        defaultCategories
+        notifications {
+          emailNotifications
+          pushNotifications
+          budgetAlerts
+          weeklyReports
+          monthlyReports
+        }
+      }
+      createdAt
+      updatedAt
+      owner
+    }
+  }
+`;
+
+export const UPDATE_USER_PROFILE = `
+  mutation UpdateUserProfile(
+    $id: ID!
+    $firstName: String
+    $lastName: String
+    $phone: String
+    $position: String
+    $profileImage: String
+    $bio: String
+    $preferences: UserPreferencesInput
+  ) {
+    updateUserProfile(input: {
+      id: $id
+      firstName: $firstName
+      lastName: $lastName
+      phone: $phone
+      position: $position
+      profileImage: $profileImage
+      bio: $bio
+      preferences: $preferences
+    }) {
+      id
+      firstName
+      lastName
+      phone
+      position
+      profileImage
+      bio
+      preferences {
+        currency
+        dateFormat
+        language
+        timezone
+        defaultCategories
+        notifications {
+          emailNotifications
+          pushNotifications
+          budgetAlerts
+          weeklyReports
+          monthlyReports
+        }
+      }
+      createdAt
+      updatedAt
+      owner
+    }
+  }
+`;
+
+export const GET_USER_PROFILE = `
+  query GetUserProfile($id: ID!) {
+    getUserProfile(id: $id) {
+      id
+      firstName
+      lastName
+      phone
+      position
+      profileImage
+      bio
+      preferences {
+        currency
+        dateFormat
+        language
+        timezone
+        defaultCategories
+        notifications {
+          emailNotifications
+          pushNotifications
+          budgetAlerts
+          weeklyReports
+          monthlyReports
+        }
+      }
+      company {
+        id
+        companyName
+        taxId
+        address
+        city
+        country
+        phone
+        email
+        website
+        logo
+        description
+        industry
+        foundedYear
+        createdAt
+        updatedAt
+      }
+      createdAt
+      updatedAt
+      owner
+    }
+  }
+`;
+
+// Company Profile Mutations
+export const CREATE_COMPANY_PROFILE = `
+  mutation CreateCompanyProfile(
+    $companyName: String!
+    $taxId: String
+    $address: String
+    $city: String
+    $country: String
+    $phone: String
+    $email: AWSEmail
+    $website: AWSURL
+    $logo: String
+    $description: String
+    $industry: String
+    $foundedYear: Int
+    $userProfileId: ID!
+  ) {
+    createCompanyProfile(input: {
+      companyName: $companyName
+      taxId: $taxId
+      address: $address
+      city: $city
+      country: $country
+      phone: $phone
+      email: $email
+      website: $website
+      logo: $logo
+      description: $description
+      industry: $industry
+      foundedYear: $foundedYear
+      userProfileCompanyId: $userProfileId
+    }) {
+      id
+      companyName
+      taxId
+      address
+      city
+      country
+      phone
+      email
+      website
+      logo
+      description
+      industry
+      foundedYear
+      createdAt
+      updatedAt
+      owner
+    }
+  }
+`;
+
+export const UPDATE_COMPANY_PROFILE = `
+  mutation UpdateCompanyProfile(
+    $id: ID!
+    $companyName: String
+    $taxId: String
+    $address: String
+    $city: String
+    $country: String
+    $phone: String
+    $email: AWSEmail
+    $website: AWSURL
+    $logo: String
+    $description: String
+    $industry: String
+    $foundedYear: Int
+  ) {
+    updateCompanyProfile(input: {
+      id: $id
+      companyName: $companyName
+      taxId: $taxId
+      address: $address
+      city: $city
+      country: $country
+      phone: $phone
+      email: $email
+      website: $website
+      logo: $logo
+      description: $description
+      industry: $industry
+      foundedYear: $foundedYear
+    }) {
+      id
+      companyName
+      taxId
+      address
+      city
+      country
+      phone
+      email
+      website
+      logo
+      description
+      industry
+      foundedYear
+      createdAt
+      updatedAt
+      owner
+    }
+  }
+`;

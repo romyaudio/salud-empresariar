@@ -49,6 +49,9 @@ La aplicación de presupuesto será una Progressive Web App (PWA) construida con
 - **TransactionList**: Lista de transacciones recientes
 - **CategoryManager**: Gestión de categorías de gastos
 - **ExportData**: Funcionalidad de exportación
+- **UserProfile**: Gestión completa del perfil de usuario y empresa
+- **ProfileForm**: Formulario para editar información personal y empresarial
+- **ImageUpload**: Componente para subir fotos de perfil y logos
 
 #### 3. UI Components
 - **Button**: Componente de botón reutilizable
@@ -87,12 +90,40 @@ interface User {
   email: string;
   name: string;
   preferences: UserPreferences;
+  profile: UserProfile;
+  company: CompanyProfile;
+}
+
+interface UserProfile {
+  firstName: string;
+  lastName: string;
+  phone?: string;
+  position?: string;
+  profileImage?: string;
+  bio?: string;
+}
+
+interface CompanyProfile {
+  companyName: string;
+  taxId?: string; // RUC/NIT
+  address?: string;
+  city?: string;
+  country?: string;
+  phone?: string;
+  email?: string;
+  website?: string;
+  logo?: string;
+  description?: string;
+  industry?: string;
+  foundedYear?: number;
 }
 
 interface UserPreferences {
   currency: string;
   dateFormat: string;
   defaultCategories: string[];
+  language: string;
+  timezone: string;
 }
 
 interface DashboardData {

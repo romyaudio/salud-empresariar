@@ -18,7 +18,7 @@ export function TransactionDebug() {
       isUsingRealAWS: isUsingRealAWS(),
       configStatus: getConfigStatus(),
       user: user ? {
-        id: user.id,
+        name: user.name,
         email: user.email,
         isAuthenticated: true
       } : null,

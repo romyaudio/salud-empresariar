@@ -1,20 +1,12 @@
 'use client';
 
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/authStore';
 import AppLayout from '@/components/layout/AppLayout';
 import { Dashboard } from '@/components/dashboard/Dashboard';
+import { LandingPage } from '@/components/landing/LandingPage';
 
 export default function Home() {
   const { isAuthenticated, isLoading } = useAuthStore();
-  const router = useRouter();
-
-  useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
-      router.push('/auth');
-    }
-  }, [isAuthenticated, isLoading, router]);
 
   if (isLoading) {
     return (
@@ -27,10 +19,12 @@ export default function Home() {
     );
   }
 
+  // Show landing page for non-authenticated users
   if (!isAuthenticated) {
-    return null; // Will redirect to auth page
+    return <LandingPage />;
   }
 
+  // Show dashboard for authenticated users
   return (
     <AppLayout>
       <div className="max-w-7xl mx-auto px-4 py-6">
