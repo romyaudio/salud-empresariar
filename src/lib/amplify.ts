@@ -1,4 +1,5 @@
 import { configureAmplifyFromOutputs, isUsingRealAWS, getConfigStatus } from './amplifyConfig';
+import { Amplify } from 'aws-amplify';
 
 // Configure Amplify using the new configuration
 export function configureAmplify() {

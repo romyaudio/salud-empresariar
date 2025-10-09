@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { UserProfile, CompanyProfile, UserProfileFormData, CompanyProfileFormData } from '@/types';
 import { useAuthStore } from '@/store/authStore';
-import { StorageService } from '@/lib/services/storageService';
+import { AmplifyStorageService } from '@/lib/services/amplifyStorageService';
 // GraphQL operations (commented out until S3 and database are configured)
 // import { 
 //   UPDATE_USER_PROFILE,
@@ -245,8 +245,8 @@ export function useProfile() {
       setIsSaving(true);
       setError(null);
       
-      // Use StorageService to handle upload (S3 or local)
-      const imageUrl = await StorageService.uploadProfileImage(file, user.id);
+      // Use AmplifyStorageService to handle upload
+      const imageUrl = await AmplifyStorageService.uploadProfileImage(file, user.id);
 
       // Update profile with new image
       if (userProfile) {
@@ -281,8 +281,8 @@ export function useProfile() {
       setIsSaving(true);
       setError(null);
       
-      // Use StorageService to handle upload (S3 or local)
-      const logoUrl = await StorageService.uploadCompanyLogo(file, user.id);
+      // Use AmplifyStorageService to handle upload
+      const logoUrl = await AmplifyStorageService.uploadCompanyLogo(file, user.id);
 
       // Update company profile with new logo
       if (companyProfile) {
